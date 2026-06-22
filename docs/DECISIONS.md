@@ -78,7 +78,7 @@ Hotkey requires an extra keypress. Watch mode is more seamless but too risky for
 
 **Reasoning:**
 - `keyboard` has the simplest API for registering global hotkeys
-- One line: `keyboard.add_hotkey('ctrl+shift+s', callback)`
+- One line: `keyboard.add_hotkey('ctrl+alt+s', callback)`
 - Works cross-platform (useful for macOS/Linux support later)
 - Well maintained, 3.5k+ GitHub stars
 
@@ -92,6 +92,27 @@ Wrap hotkey registration in a try/except. If it fails due to permissions, show a
    The CLI still works: scrub-ai --file logs.txt
 ```
 The CLI must always work regardless of whether the hotkey registration succeeds.
+
+---
+
+## D008 — Default hotkey changed from `Ctrl+Shift+S` to `Ctrl+Alt+S`
+
+**Decision:** `Ctrl+Alt+S`
+
+**Options considered:**
+- `Ctrl+Shift+S` — original choice, S for Scrub
+- `Ctrl+Shift+X` — low conflicts, X for scrub out
+- `Ctrl+Alt+S` — S for Scrub, no major conflicts
+
+**Reasoning:**
+- scrub-ai is primarily a developer tool and developers use VS Code daily
+- VS Code uses `Ctrl+Shift+S` for Save All — this creates muscle memory confusion
+- `Ctrl+Alt+S` has no known conflicts with VS Code or common developer tools
+- Still memorable — S for Scrub
+- Feels like a deliberate tool shortcut rather than an editor shortcut
+
+**Tradeoff accepted:**
+`Ctrl+Alt+S` conflicts with some music apps (e.g. Spotify shortcuts) but that is not relevant to the target audience.
 
 ---
 

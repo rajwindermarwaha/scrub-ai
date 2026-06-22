@@ -199,7 +199,7 @@ macOS:   ~/Library/Application Support/scrub-ai/config.json
 Default config:
 ```json
 {
-  "hotkey": "ctrl+shift+s",
+  "hotkey": "ctrl+alt+s",
   "enabled": true,
   "notify": true,
   "detectors": {
