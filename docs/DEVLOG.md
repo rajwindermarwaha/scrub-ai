@@ -33,6 +33,20 @@ A running log of every step taken to build scrub-ai, what was done, and why.
 
 ---
 
+## Step 5 — Created `scrub_ai/__init__.py` and `scrub_ai/detectors/__init__.py`
+**What:** Created `__init__.py` files in both `scrub_ai/` and `scrub_ai/detectors/`.
+
+**Why:** In Python, a folder is just a folder unless it has an `__init__.py` inside it. That file is what makes it a package — meaning Python can import from it. `scrub_ai/__init__.py` also holds the version number as the single source of truth.
+
+---
+
+## Step 6 — Created `detectors/base.py`
+**What:** Created the base detector class and the `Match` dataclass.
+
+**Why:** All detectors (secrets, cloud, network) share the same loop logic — iterate patterns, find matches, return results. Writing this once in a base class avoids repetition. Each detector just defines its patterns and inherits the rest. The `Match` dataclass is a simple container representing one detected item — position, original text, replacement, category, and label.
+
+---
+
 ## Step 4 — Made CLI cross-platform
 **What:** Removed Windows-only platform markers from `pystray` and `Pillow`. Kept markers only on `win10toast` and `keyboard`. Updated classifiers, README, ARCHITECTURE, and DECISIONS docs.
 

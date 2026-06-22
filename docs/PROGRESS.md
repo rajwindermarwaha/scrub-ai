@@ -8,26 +8,42 @@ When starting a new session with AI, share this file so it knows exactly where t
 ## ⏩ NEXT SESSION — START HERE
 
 ### What to do first
-1. Check out the feature branch
+1. Activate the virtual environment
 ```bash
+cd ~/scrub-ai
 git checkout feature/v1-core
-```
-2. Create a virtual environment and install dev dependencies
-```bash
-python3 -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
 ```
-3. Once done → tell AI **"venv is ready, let's continue"**
+2. Confirm you're on the right branch and venv is active — you should see `(.venv)` in your prompt
+3. Tell AI **"venv is ready, let's continue"**
 
-### Step 4 will be
-- Create the full folder structure (`scrub_ai/`, `tests/`, etc.)
-- Create `scrub_ai/__init__.py`
-- Then start writing `detectors/base.py`
+### Next step
+- Write `detectors/secrets.py` — regex patterns for API keys, tokens, passwords, JWTs, private keys
 
 ---
 
 ## Session Log
+
+---
+
+### Session 3 — 2026-06-22
+
+**What we did:**
+- Fixed `pyproject.toml` build backend (`setuptools.backends` → `setuptools.build_meta`)
+- Made CLI cross-platform (Windows, Linux, macOS) — only hotkey/tray/notifications remain Windows-only
+- Updated `ARCHITECTURE.md`, `DECISIONS.md`, `README.md` to reflect cross-platform support
+- Created virtual environment and installed all dependencies
+- Upgraded pip to 26.1.2, setuptools to 82.0.1
+- Created `scrub_ai/__init__.py` and `scrub_ai/detectors/__init__.py`
+- Created `detectors/base.py` with `Match` dataclass and `BaseDetector` class
+
+**What was NOT done:**
+- No detector logic written yet (secrets, cloud, network)
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Foundation complete. Ready to write detectors.
 
 ---
 
@@ -94,20 +110,19 @@ pip install -e ".[dev]"
 | 3 | Create `feature/v1-core` branch | Session 2 | ✅ Done |
 | 4 | Create `docs/DEVLOG.md` | Session 2 | ✅ Done |
 | 5 | Create `pyproject.toml` | Session 2 | ✅ Done |
-| 6 | Create virtual environment | - | ⏳ Pending |
-| 7 | Create project folder structure | - | ⏳ Pending |
-| 8 | Write `scrub_ai/__init__.py` | - | ⏳ Pending |
-| 9 | Write `detectors/base.py` | - | ⏳ Pending |
-| 10 | Write `detectors/secrets.py` | - | ⏳ Pending |
-| 11 | Write `detectors/cloud.py` | - | ⏳ Pending |
-| 12 | Write `detectors/network.py` | - | ⏳ Pending |
-| 13 | Write `sanitizer.py` | - | ⏳ Pending |
-| 14 | Write `cli.py` | - | ⏳ Pending |
-| 15 | Write `notifier.py` | - | ⏳ Pending |
-| 16 | Write `hotkey.py` | - | ⏳ Pending |
-| 17 | Write `tray.py` | - | ⏳ Pending |
-| 18 | Write tests + fixtures | - | ⏳ Pending |
-| 19 | Publish to PyPI | - | ⏳ Pending |
+| 6 | Create virtual environment | Session 3 | ✅ Done |
+| 7 | Create `scrub_ai/__init__.py` and `detectors/__init__.py` | Session 3 | ✅ Done |
+| 8 | Write `detectors/base.py` | Session 3 | ✅ Done |
+| 9 | Write `detectors/secrets.py` | - | ⏳ Pending |
+| 10 | Write `detectors/cloud.py` | - | ⏳ Pending |
+| 11 | Write `detectors/network.py` | - | ⏳ Pending |
+| 12 | Write `sanitizer.py` | - | ⏳ Pending |
+| 13 | Write `cli.py` | - | ⏳ Pending |
+| 14 | Write `notifier.py` | - | ⏳ Pending |
+| 15 | Write `hotkey.py` | - | ⏳ Pending |
+| 16 | Write `tray.py` | - | ⏳ Pending |
+| 17 | Write tests + fixtures | - | ⏳ Pending |
+| 18 | Publish to PyPI | - | ⏳ Pending |
 
 ---
 
