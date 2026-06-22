@@ -33,7 +33,7 @@ Once that data leaves your machine, you have no control over it.
 - ☁️ **Cloud detection** — AWS account IDs, ARNs, GCP project IDs, Azure subscriptions
 - 🌐 **Network detection** — IP addresses, internal hostnames, internal URLs
 - 👤 **PII detection** — email addresses, phone numbers *(v2)*
-- ⌨️ **Windows hotkey** — press `Ctrl+Shift+S` to sanitize clipboard instantly
+- ⌨️ **Windows hotkey** — press `Ctrl+Alt+S` to sanitize clipboard instantly
 - 🖥️ **System tray** — runs quietly in the background
 - 📋 **CLI** — pipe any text through it from the terminal
 - 📦 **PyPI** — install with a single `pip install scrub-ai`
@@ -72,7 +72,7 @@ scrub-ai --start
 
 # Icon appears in system tray (bottom right)
 # Copy any text with Ctrl+C as normal
-# Press Ctrl+Shift+S to sanitize clipboard
+# Press Ctrl+Alt+S to sanitize clipboard
 # Paste clean text with Ctrl+V
 ```
 
