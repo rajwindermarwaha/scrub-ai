@@ -8,25 +8,46 @@ When starting a new session with AI, share this file so it knows exactly where t
 ## ⏩ NEXT SESSION — START HERE
 
 ### What to do first
-1. Verify Python is installed
+1. Check out the feature branch
 ```bash
-python --version
-# Expected: Python 3.12.x
+git checkout feature/v1-core
 ```
-2. If not installed → go to https://www.python.org/downloads/windows/
-   - Tick **"Add python.exe to PATH"** before installing
-   - Install to `C:\Python312\`
-3. Once Python is confirmed → tell AI **"Python is ready, let's start Step 2"**
+2. Create a virtual environment and install dev dependencies
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+3. Once done → tell AI **"venv is ready, let's continue"**
 
-### Step 2 will be
-- Create a virtual environment
-- Create `pyproject.toml`
-- Create the full folder structure
+### Step 4 will be
+- Create the full folder structure (`scrub_ai/`, `tests/`, etc.)
 - Create `scrub_ai/__init__.py`
+- Then start writing `detectors/base.py`
 
 ---
 
 ## Session Log
+
+---
+
+### Session 2 — 2026-06-22
+
+**What we did:**
+- Confirmed Python 3.10.12 is available in WSL (Ubuntu)
+- Decided to work in WSL, not Windows native
+- Created `feature/v1-core` branch and pushed to GitHub
+- Created `docs/DEVLOG.md` — a running developer journal of what we built and why
+- Created `pyproject.toml` — project metadata, dependencies, CLI entry point
+
+**What was NOT done:**
+- Virtual environment not yet created
+- No Python source files written yet
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Project scaffold started. Ready to create venv and start writing code.
 
 ---
 
@@ -69,21 +90,24 @@ python --version
 | Step | Description | Session | Status |
 |---|---|---|---|
 | 1 | Project planning docs pushed to GitHub | Session 1 | ✅ Done |
-| 2 | Install Python 3.12 on Windows | - | ⏳ Pending |
-| 3 | Create virtual environment | - | ⏳ Pending |
-| 4 | Create `pyproject.toml` | - | ⏳ Pending |
-| 5 | Create project folder structure | - | ⏳ Pending |
-| 6 | Write `detectors/base.py` | - | ⏳ Pending |
-| 7 | Write `detectors/secrets.py` | - | ⏳ Pending |
-| 8 | Write `detectors/cloud.py` | - | ⏳ Pending |
-| 9 | Write `detectors/network.py` | - | ⏳ Pending |
-| 10 | Write `sanitizer.py` | - | ⏳ Pending |
-| 11 | Write `cli.py` | - | ⏳ Pending |
-| 12 | Write `notifier.py` | - | ⏳ Pending |
-| 13 | Write `hotkey.py` | - | ⏳ Pending |
-| 14 | Write `tray.py` | - | ⏳ Pending |
-| 15 | Write tests + fixtures | - | ⏳ Pending |
-| 16 | Publish to PyPI | - | ⏳ Pending |
+| 2 | Confirm Python is installed | Session 2 | ✅ Done |
+| 3 | Create `feature/v1-core` branch | Session 2 | ✅ Done |
+| 4 | Create `docs/DEVLOG.md` | Session 2 | ✅ Done |
+| 5 | Create `pyproject.toml` | Session 2 | ✅ Done |
+| 6 | Create virtual environment | - | ⏳ Pending |
+| 7 | Create project folder structure | - | ⏳ Pending |
+| 8 | Write `scrub_ai/__init__.py` | - | ⏳ Pending |
+| 9 | Write `detectors/base.py` | - | ⏳ Pending |
+| 10 | Write `detectors/secrets.py` | - | ⏳ Pending |
+| 11 | Write `detectors/cloud.py` | - | ⏳ Pending |
+| 12 | Write `detectors/network.py` | - | ⏳ Pending |
+| 13 | Write `sanitizer.py` | - | ⏳ Pending |
+| 14 | Write `cli.py` | - | ⏳ Pending |
+| 15 | Write `notifier.py` | - | ⏳ Pending |
+| 16 | Write `hotkey.py` | - | ⏳ Pending |
+| 17 | Write `tray.py` | - | ⏳ Pending |
+| 18 | Write tests + fixtures | - | ⏳ Pending |
+| 19 | Publish to PyPI | - | ⏳ Pending |
 
 ---
 
