@@ -85,6 +85,14 @@ Hotkey requires an extra keypress. Watch mode is more seamless but too risky for
 **Tradeoff accepted:**
 `keyboard` requires admin privileges on some Windows configurations. This is documented in the README.
 
+**Note for implementation (`hotkey.py`):**
+Wrap hotkey registration in a try/except. If it fails due to permissions, show a helpful message and fall back gracefully:
+```
+⚠️  Could not register hotkey. Try running as administrator.
+   The CLI still works: scrub-ai --file logs.txt
+```
+The CLI must always work regardless of whether the hotkey registration succeeds.
+
 ---
 
 ## D005 — Label replacement over Redact for default
