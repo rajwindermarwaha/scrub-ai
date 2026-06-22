@@ -2,7 +2,7 @@
 
 ## Overview
 
-scrub-ai is a Python CLI tool and Windows background service that detects and masks sensitive content from any text. It runs detectors in sequence against input text and replaces matches with labelled placeholders.
+scrub-ai is a cross-platform Python CLI tool and Windows background service that detects and masks sensitive content from any text. The CLI works on Windows, Linux, and macOS. The hotkey and system tray features are Windows-only.
 
 ---
 
@@ -172,19 +172,19 @@ Priority 4 — PII         (emails, phones — v1.1)
 
 ## Tech Stack
 
-| Component | Library | Version |
-|---|---|---|
-| Language | Python | 3.10+ |
-| CLI | click | 8.x |
-| Clipboard | pyperclip | 1.8.x |
-| Global hotkey | keyboard | 0.13.x |
-| System tray | pystray | 0.19.x |
-| Tray icon rendering | Pillow | 10.x |
-| Toast notifications | win10toast | 0.9.x |
-| NLP PII (v1.1) | presidio-analyzer | 2.x |
-| Tests | pytest | 7.x |
-| Packaging | pyproject.toml + PyPI | — |
-| CI | GitHub Actions | — |
+| Component | Library | Version | Platform |
+|---|---|---|---|
+| Language | Python | 3.10+ | All |
+| CLI | click | 8.x | All |
+| Clipboard | pyperclip | 1.8.x | All |
+| System tray | pystray | 0.19.x | All |
+| Tray icon rendering | Pillow | 10.x | All |
+| Global hotkey | keyboard | 0.13.x | Windows only |
+| Toast notifications | win10toast | 0.9.x | Windows only |
+| NLP PII (v1.1) | presidio-analyzer | 2.x | All |
+| Tests | pytest | 7.x | All |
+| Packaging | pyproject.toml + PyPI | — | All |
+| CI | GitHub Actions | — | All |
 
 ---
 
@@ -192,6 +192,8 @@ Priority 4 — PII         (emails, phones — v1.1)
 
 ```
 Windows: C:\Users\{username}\AppData\Roaming\scrub-ai\config.json
+Linux:   ~/.config/scrub-ai/config.json
+macOS:   ~/Library/Application Support/scrub-ai/config.json
 ```
 
 Default config:

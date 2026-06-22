@@ -117,17 +117,26 @@ AWS error: invalid credentials [AWS_ACCESS_KEY]
 
 ## D006 — Windows first, macOS/Linux later
 
-**Decision:** V1 targets Windows only
+**Decision:** V1 CLI is cross-platform. Hotkey and tray are Windows-only.
 
-**Reasoning:**
-- Most DevSecOps tools focus on macOS/Linux — Windows is underserved
-- System tray and toast notifications have different implementations per OS
-- Better to do one OS well than three OSes poorly
-- Windows has the largest overall developer user base by install count
-- macOS support added in V1.1 once core is stable
+**Original decision:** Windows only for V1.
+
+**Why we changed it:**
+- During setup we discovered that developing on WSL/Linux was blocked by Windows-only dependencies
+- The CLI and detectors are pure Python + regex — there is no reason to restrict them to Windows
+- Only `win10toast` and `keyboard` are genuinely Windows-only
+- `pystray` and `Pillow` work cross-platform
+- Making the CLI cross-platform from day one means Linux and macOS developers can use and contribute to scrub-ai
+
+**What is Windows-only:**
+- `scrub-ai --start` (hotkey + system tray + toast notifications)
+
+**What works everywhere:**
+- `scrub-ai --file logs.txt` and all CLI flags
+- All detectors
 
 **Tradeoff accepted:**
-Limits initial audience. Mitigated by the fact that Windows is underserved — it's a differentiator, not a weakness.
+The Windows hotkey experience remains the flagship feature but the tool is now useful to a much wider audience.
 
 ---
 

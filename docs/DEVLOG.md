@@ -32,3 +32,16 @@ A running log of every step taken to build scrub-ai, what was done, and why.
 - `pytest` is a dev-only dep under `[project.optional-dependencies]` — not installed for end users
 
 ---
+
+## Step 4 — Made CLI cross-platform
+**What:** Removed Windows-only platform markers from `pystray` and `Pillow`. Kept markers only on `win10toast` and `keyboard`. Updated classifiers, README, ARCHITECTURE, and DECISIONS docs.
+
+**Why:** During venv setup, `win10toast` pulled in `pypiwin32` which is Windows-only and failed to install on WSL/Linux. This forced us to reconsider the platform strategy.
+
+**Decision:** The CLI and all detectors are pure Python — there is no reason to restrict them to Windows. Only the hotkey and toast notification features are genuinely Windows-only. Making the CLI cross-platform from day one widens the audience and unblocks development on Linux/macOS.
+
+**What is Windows-only:** `scrub-ai --start` (hotkey + tray + notifications)
+
+**What works everywhere:** All CLI flags, all detectors
+
+---
