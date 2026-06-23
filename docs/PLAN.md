@@ -22,7 +22,7 @@ Once this data is sent to an AI provider, the developer has no control over how 
 ### Primary
 - **SREs and DevOps engineers** — copy logs, Terraform output, kubectl output, AWS CLI output into AI tools daily
 - **Backend developers** — copy stack traces, config files, environment variables into AI tools
-- **Windows users** — underserved by existing DevSecOps tools which focus on macOS/Linux
+- **Developers on any platform** — Windows, macOS, and Linux users who want a simple, cross-platform sanitization tool
 
 ### Secondary
 - Security engineers who want to enforce sanitization policies in their team
@@ -62,7 +62,6 @@ Once this data is sent to an AI provider, the developer has no control over how 
 - ❌ PII detection via NLP (names, addresses) — too slow for v1
 - ❌ VS Code extension
 - ❌ Browser extension
-- ❌ macOS / Linux support (v1 focuses on Windows)
 - ❌ Custom pattern configuration
 - ❌ Team policies / audit log
 - ❌ Fake data replacement (replace with realistic fake values)
@@ -97,7 +96,6 @@ Week 2:
 - Add Presidio for NLP-based PII detection (emails, names, phone numbers)
 - Add confidence scoring to reduce false positives
 - Add `--profile` flag (`--profile aws`, `--profile k8s`)
-- macOS support
 
 ### Phase 3 — V1.2 (Month 2)
 **Goal:** Watch mode + community growth
@@ -112,7 +110,6 @@ Week 2:
 
 - VS Code extension
 - Browser extension
-- Linux support
 
 ---
 
@@ -122,7 +119,7 @@ Week 2:
 |---|---|---|
 | Week 1 | Project setup + all detectors + CLI | 🔲 Not started |
 | Week 2 | Hotkey + tray + PyPI publish | 🔲 Not started |
-| Week 3 | PII detection + macOS | 🔲 Not started |
+| Week 3 | PII detection | 🔲 Not started |
 | Week 4 | Watch mode + blog post | 🔲 Not started |
 
 ---
