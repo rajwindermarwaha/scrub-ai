@@ -14,7 +14,7 @@ cd scrub-ai
 # 2. Create a virtual environment
 python -m venv venv
 venv\Scripts\activate        # Windows
-# source venv/bin/activate   # macOS/Linux
+source venv/bin/activate   # macOS/Linux
 
 # 3. Install in development mode with dev dependencies
 pip install -e ".[dev]"
