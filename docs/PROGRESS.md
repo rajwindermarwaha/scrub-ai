@@ -18,11 +18,30 @@ source .venv/bin/activate
 3. Tell AI **"venv is ready, let's continue"**
 
 ### Next step
-- Write `detectors/secrets.py` — regex patterns for API keys, tokens, passwords, JWTs, private keys
+- Write `detectors/network.py` — regex patterns for IPv4, IPv6, internal hostnames, internal URLs
 
 ---
 
-## Session Log
+### Session 4 — 2026-06-24
+
+**What we did:**
+- Created `detectors/secrets.py` — 6 regex patterns (private keys, JWTs, bearer tokens, API keys, passwords, hex tokens)
+- Created `detectors/cloud.py` — 12 regex patterns covering AWS (access key IDs, secret keys, account IDs, ARNs, session tokens), GCP (API keys, service accounts, project IDs), and Azure (subscription/tenant/client IDs, client secrets, storage connection strings, SAS tokens)
+- Updated `detectors/__init__.py` to export both detectors
+
+**What was NOT done:**
+- Network detector not yet written
+- Core sanitizer not yet written
+- CLI not yet written
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Two of three detectors complete. Ready to write network detector.
+
+---
+
+
 
 ---
 

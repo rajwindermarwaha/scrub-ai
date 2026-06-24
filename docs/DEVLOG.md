@@ -59,3 +59,47 @@ A running log of every step taken to build scrub-ai, what was done, and why.
 **What works everywhere:** All CLI flags, all detectors
 
 ---
+
+## Step 7 — Created `detectors/secrets.py`
+**What:** Created the first concrete detector — `SecretsDetector` — with 6 compiled regex patterns.
+
+**Patterns added:**
+| Label | What it detects |
+|---|---|
+| `private_key` | PEM private key blocks (`-----BEGIN ... PRIVATE KEY-----`) |
+| `jwt` | JSON Web Tokens (three base64url segments starting with `eyJ`) |
+| `bearer_token` | HTTP `Authorization: Bearer <token>` headers |
+| `api_key` | Key/value pairs like `api_key=...`, `access_token=...`, `secret_key=...` |
+| `password` | Key/value pairs like `password=...`, `passwd=...`, `pwd=...` |
+| `hex_token` | Raw 32–64 char lowercase hex strings used as tokens |
+
+**Why these patterns:** These are the most common secrets that appear in logs, stack traces, and config files pasted into AI tools. PEM keys and JWTs have fixed structural signatures that make them easy to detect reliably. API keys and passwords are caught via named key=value context to reduce false positives. Hex tokens cover generic high-entropy values that don't match a named pattern.
+
+**Design:** Follows the `BaseDetector` pattern — defines `patterns` as a class attribute, inherits `detect()`. `priority = 1` means it runs before cloud and network detectors.
+
+---
+
+## Step 8 — Created `detectors/cloud.py`
+**What:** Created `CloudDetector` with 12 regex patterns covering the three major cloud providers.
+
+**AWS patterns (5):**
+- Access Key IDs — fixed prefixes (`AKIA`, `ASIA`, `AROA`, etc.) followed by 16 uppercase alphanumeric chars. Very low false-positive rate due to the distinctive prefix.
+- Secret Access Keys — 40-char base64 string in `aws_secret_access_key=` context.
+- Account IDs — 12-digit numbers in `account_id=` / `aws_account=` context.
+- ARNs — full `arn:aws:service:region:accountid:resource` format. Structural match, very reliable.
+- Session tokens — long base64 strings (100–300 chars) in `aws_session_token=` context.
+
+**GCP patterns (3):**
+- API keys — `AIza` prefix followed by 35 alphanumeric chars. Fixed structure, no false positives.
+- Service account emails — `...@project.iam.gserviceaccount.com` domain is unique to GCP.
+- Project IDs — lowercase alphanumeric+hyphen strings in `project_id=` / `gcp_project=` context.
+
+**Azure patterns (4):**
+- Subscription / Tenant / Client IDs — UUIDs detected only in named context to avoid flagging random UUIDs.
+- Client secrets — 34+ char strings in `client_secret=` context.
+- Storage connection strings — `DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...` format.
+- SAS tokens — multi-parameter query strings with `sv=`, `se=`, `sr=`, `sp=`, `sig=` components.
+
+**Why cloud-specific patterns matter:** Cloud credentials (ARNs, access keys, GCP service accounts) are extremely common in SRE/DevOps workflows — `aws sts`, `kubectl`, Terraform output all contain them. They are high-severity leaks because they can grant direct access to production infrastructure.
+
+---
