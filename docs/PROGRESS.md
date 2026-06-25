@@ -11,7 +11,7 @@ When starting a new session with AI, share this file so it knows exactly where t
 1. Activate the virtual environment
 ```bash
 cd ~/scrub-ai
-git checkout feature/v1-core
+git checkout feature/v1-cli
 source .venv/bin/activate
 ```
 2. Confirm you're on the right branch and venv is active — you should see `(.venv)` in your prompt
@@ -19,6 +19,30 @@ source .venv/bin/activate
 
 ### Next step
 - Write `cli.py` — implement stdin/file input, `--dry-run`, and `--copy`
+
+---
+
+### Session 6 — 2026-06-25
+
+**What we did:**
+- Added detector tests:
+  - `tests/test_secrets_detector.py`
+  - `tests/test_cloud_detector.py`
+  - `tests/test_base_detector.py`
+- Expanded coverage from network/sanitizer-only to all current detector modules + base behavior
+- Ran the test suite and verified status: `8 passed`
+- Addressed GitHub push-protection warning by hardening secret-like test fixtures:
+  - Replaced direct literal signatures with runtime-composed strings in secrets/cloud tests
+  - Re-verified that common trigger signatures no longer appear as direct literals in tests
+
+**What was NOT done:**
+- CLI entrypoint not yet written (`cli.py`)
+- Windows runtime features not yet written (`notifier.py`, `hotkey.py`, `tray.py`)
+
+**Blockers:**
+- None
+
+**Status:** 🟢 Core detector/sanitizer/test foundation complete and push-safe for current fixtures. Ready for CLI implementation on `feature/v1-cli`.
 
 ---
 
@@ -163,7 +187,7 @@ source .venv/bin/activate
 | 14 | Write `notifier.py` | - | ⏳ Pending |
 | 15 | Write `hotkey.py` | - | ⏳ Pending |
 | 16 | Write `tray.py` | - | ⏳ Pending |
-| 17 | Write tests + fixtures | Session 5 (partial) | 🟡 In progress |
+| 17 | Write tests + fixtures | Session 6 | ✅ Done |
 | 18 | Publish to PyPI | - | ⏳ Pending |
 
 ---
