@@ -167,4 +167,4 @@ MIT — see [LICENSE](LICENSE)
 
 Built by [@rajwindermarwaha](https://github.com/rajwindermarwaha)
 
-> *Built this because I kept accidentally pasting AWS credentials and internal hostnames into AI tools. Figured others do the same.*
+> *Built this because I had to put in the extra effort of copying everything into Notepad first and manually scrubbing it before sharing with AI tools. Figured others do the same.*

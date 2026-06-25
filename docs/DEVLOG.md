@@ -103,3 +103,45 @@ A running log of every step taken to build scrub-ai, what was done, and why.
 **Why cloud-specific patterns matter:** Cloud credentials (ARNs, access keys, GCP service accounts) are extremely common in SRE/DevOps workflows — `aws sts`, `kubectl`, Terraform output all contain them. They are high-severity leaks because they can grant direct access to production infrastructure.
 
 ---
+
+## Step 9 — Created `detectors/network.py`
+**What:** Created `NetworkDetector` with 4 regex pattern groups:
+- IPv4 addresses
+- IPv6 addresses (full and compressed forms)
+- Internal hostnames (`*.internal`, `*.local`, `*.corp`, `*.lan`, `*.home.arpa`, and `localhost`)
+- Internal URLs (localhost, RFC1918 private ranges, and internal host suffixes)
+
+**Why:** Network identifiers are common in logs and stack traces shared with AI assistants. Even when they are not direct credentials, they leak internal topology (host naming conventions, private address ranges, service endpoints), which is sensitive operational metadata.
+
+**Design:** `priority = 3`, so network masking runs after secrets and cloud patterns. This helps preserve higher-severity matches when patterns overlap.
+
+---
+
+## Step 10 — Created `sanitizer.py`
+**What:** Implemented the core sanitizer engine with:
+1. Detector execution in priority order
+2. Match collection across all detectors
+3. Overlap resolution (higher confidence wins; deterministic tie behavior)
+4. Replacement application from end-to-start to avoid index drift
+5. Report generation (`total_matches`, `by_category`, `by_label`, `is_clean`)
+
+Also added a convenience helper:
+- `sanitize_text(text) -> (clean_text, report)`
+
+**Why:** This is the central orchestration layer of scrub-ai. Detectors only find sensitive spans; the sanitizer is what turns detections into safe output plus an auditable summary.
+
+---
+
+## Step 11 — Added tests for network + sanitizer
+**What:** Added two test modules:
+- `tests/test_network_detector.py` to verify IPv4/IPv6/internal hostname/internal URL detection
+- `tests/test_sanitizer.py` to verify replacement/report behavior and overlap resolution
+
+During testing, one overlap assertion initially failed due to incorrect character span boundaries in the test fixture. The spans were corrected, and the suite passed.
+
+**Result:**
+- `pytest -q` → `4 passed`
+
+**Why:** These tests establish confidence in the first complete vertical slice of the core product: detection + sanitization + report generation.
+
+---

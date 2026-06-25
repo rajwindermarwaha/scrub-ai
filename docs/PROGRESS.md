@@ -18,7 +18,30 @@ source .venv/bin/activate
 3. Tell AI **"venv is ready, let's continue"**
 
 ### Next step
-- Write `detectors/network.py` — regex patterns for IPv4, IPv6, internal hostnames, internal URLs
+- Write `cli.py` — implement stdin/file input, `--dry-run`, and `--copy`
+
+---
+
+### Session 5 — 2026-06-25
+
+**What we did:**
+- Created `detectors/network.py` — regex patterns for IPv4, IPv6, internal hostnames, and internal URLs
+- Updated `detectors/__init__.py` to export `NetworkDetector`
+- Created `sanitizer.py` — runs detectors by priority, resolves overlaps, applies replacements, builds report
+- Added tests:
+  - `tests/test_network_detector.py`
+  - `tests/test_sanitizer.py`
+- Fixed overlap-test span boundaries and re-ran test suite
+- Verified test status: `4 passed`
+
+**What was NOT done:**
+- CLI entrypoint not yet written (`cli.py`)
+- Windows runtime features not yet written (`notifier.py`, `hotkey.py`, `tray.py`)
+
+**Blockers:**
+- None
+
+**Status:** 🟢 Core detection + sanitizer foundation complete. Ready for CLI wiring.
 
 ---
 
@@ -132,15 +155,15 @@ source .venv/bin/activate
 | 6 | Create virtual environment | Session 3 | ✅ Done |
 | 7 | Create `scrub_ai/__init__.py` and `detectors/__init__.py` | Session 3 | ✅ Done |
 | 8 | Write `detectors/base.py` | Session 3 | ✅ Done |
-| 9 | Write `detectors/secrets.py` | - | ⏳ Pending |
-| 10 | Write `detectors/cloud.py` | - | ⏳ Pending |
-| 11 | Write `detectors/network.py` | - | ⏳ Pending |
-| 12 | Write `sanitizer.py` | - | ⏳ Pending |
+| 9 | Write `detectors/secrets.py` | Session 4 | ✅ Done |
+| 10 | Write `detectors/cloud.py` | Session 4 | ✅ Done |
+| 11 | Write `detectors/network.py` | Session 5 | ✅ Done |
+| 12 | Write `sanitizer.py` | Session 5 | ✅ Done |
 | 13 | Write `cli.py` | - | ⏳ Pending |
 | 14 | Write `notifier.py` | - | ⏳ Pending |
 | 15 | Write `hotkey.py` | - | ⏳ Pending |
 | 16 | Write `tray.py` | - | ⏳ Pending |
-| 17 | Write tests + fixtures | - | ⏳ Pending |
+| 17 | Write tests + fixtures | Session 5 (partial) | 🟡 In progress |
 | 18 | Publish to PyPI | - | ⏳ Pending |
 
 ---
