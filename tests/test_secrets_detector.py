@@ -11,13 +11,20 @@ def _replacements(matches):
 
 def test_detects_common_secret_patterns() -> None:
     detector = SecretsDetector()
+    bearer_token = "abcdefghijklmnop" + "qrstuvwxyz123456"
+    api_key = "abcdefghijklmno" + "123456789"
+    jwt_value = (
+        "eyJ" + "hbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        + "."
+        + "eyJzdWIiOiIxMjM0NTY3ODkwIn0"
+        + "."
+        + "c2lnbmF0dXJlMTIzNDU2Nzg5MA"
+    )
     text = (
-        "Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456\n"
-        "api_key=abcdefghijklmno123456789\n"
+        f"Authorization: Bearer {bearer_token}\n"
+        f"api_key={api_key}\n"
         "password=SuperSecret123\n"
-        "jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
-        "eyJzdWIiOiIxMjM0NTY3ODkwIn0."
-        "c2lnbmF0dXJlMTIzNDU2Nzg5MA\n"
+        f"jwt={jwt_value}\n"
         "token=0123456789abcdef0123456789abcdef\n"
     )
 
@@ -40,10 +47,12 @@ def test_detects_common_secret_patterns() -> None:
 
 def test_detects_private_key_block() -> None:
     detector = SecretsDetector()
+    begin_key = "-----BEGIN " + "PRIVATE KEY-----"
+    end_key = "-----END " + "PRIVATE KEY-----"
     text = (
-        "-----BEGIN PRIVATE KEY-----\n"
+        f"{begin_key}\n"
         "MIIEvAIBADANBgkqhkiG9w0BAQEFAASC...\n"
-        "-----END PRIVATE KEY-----\n"
+        f"{end_key}\n"
     )
 
     matches = detector.detect(text)
