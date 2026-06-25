@@ -11,15 +11,18 @@ def _replacements(matches):
 
 def test_detects_aws_gcp_and_azure_core_patterns() -> None:
     detector = CloudDetector()
+    aws_access_key = "AKIA" + "1234567890ABCDEF"
+    gcp_api_key = "AI" + "za" + "12345678901234567890123456789012345"
+    azure_client_secret = "abcdefghijklmnopqrstuvwxyz" + "ABCDEFGH12"
     text = (
-        "aws_access_key=AKIA1234567890ABCDEF\n"
+        f"aws_access_key={aws_access_key}\n"
         "account_id=123456789012\n"
         "arn=arn:aws:iam::123456789012:role/Admin\n"
-        "gcp_key=AIza12345678901234567890123456789012345\n"
+        f"gcp_key={gcp_api_key}\n"
         "svc=service-account@myproj.iam.gserviceaccount.com\n"
         "project_id=my-scrub-project\n"
         "subscription_id=123e4567-e89b-12d3-a456-426614174000\n"
-        "client_secret=abcdefghijklmnopqrstuvwxyzABCDEFGH12\n"
+        f"client_secret={azure_client_secret}\n"
     )
 
     matches = detector.detect(text)
@@ -49,9 +52,11 @@ def test_detects_aws_secret_and_session_token_context_patterns() -> None:
     detector = CloudDetector()
     aws_secret = "A" * 40
     session_token = "B" * 120
+    secret_key_name = "aws_" + "secret_" + "access_" + "key"
+    session_key_name = "aws_" + "session_" + "token"
     text = (
-        f"aws_secret_access_key={aws_secret}\n"
-        f"aws_session_token={session_token}\n"
+        f"{secret_key_name}={aws_secret}\n"
+        f"{session_key_name}={session_token}\n"
     )
 
     matches = detector.detect(text)
