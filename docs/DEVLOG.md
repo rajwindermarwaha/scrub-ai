@@ -158,9 +158,28 @@ Coverage now includes:
 - Sanitizer orchestration and overlap logic
 
 **Result:**
-- `pytest -q` → `8 passed`
+- `pytest -q` → `11 passed`
 
 **Why:** Until this step, tests focused on network + sanitizer. Adding direct tests for secrets/cloud/base improves confidence, makes failures easier to localize, and lowers refactor risk.
+
+---
+
+## Step 14 — Wrote `cli.py` — CLI entry point
+
+**What:** Implemented `scrub_ai/cli.py` using `click` with three flags:
+- `--file` — read input from a file path
+- `--dry-run` — show what would be detected without changing the output text
+- `--copy` — copy the sanitized output to the system clipboard via `pyperclip`
+
+Stdin pipe is auto-detected when no `--file` is given and a pipe is present.  
+Detection summary is always written to stderr so it doesn't pollute piped output.
+
+Also added `tests/test_cli.py` with 4 tests covering all CLI code paths.
+
+**Result:**
+- `pytest -q` → `15 passed`
+
+**Why:** The CLI is the primary user-facing interface of scrub-ai. Without it, the detectors and sanitizer have no way to be invoked from the terminal. This step wires the whole core stack together end-to-end.
 
 ---
 
