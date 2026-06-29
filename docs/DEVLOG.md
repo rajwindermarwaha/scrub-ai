@@ -350,3 +350,43 @@ Examples of hardening:
 **Why:** Confirming all 62 tests across 9 test files pass with zero failures or warnings.
 
 ---
+
+## Step 25 — Created `assets/icon.png`
+
+**What:** Generated a 64×64 RGBA PNG tray icon programmatically using Pillow.
+
+**Design:**
+- Dark blue rounded square background (RGB 25, 90, 170)
+- White shield polygon centred in the square
+- Blue "S" cutout inside the shield using two arcs and connecting strokes
+
+**Why:** pystray requires a PIL Image for the tray icon. Without a real icon file the tool falls back to the plain blue square defined in `tray.py`. This gives the published tool a recognisable identity in the system tray.
+
+---
+
+## Step 26 — Polished `README.md` for PyPI
+
+**What:** Updated the README with:
+- Added CI badge linking to the GitHub Actions workflow
+- Removed PII (email/phone) from the features list — that is a v1.1 item, not in v1
+- Fixed the example to match the actual v1 CLI output format (real label names, stderr summary line)
+- Updated the detection table to reflect real v1 detectors only
+- Marked v1.0 as complete `[x]` in the roadmap
+
+**Why:** The README is the PyPI project page. Everything on it should be accurate for what ships in v1 — listing features that don't exist yet damages credibility.
+
+---
+
+## Step 27 — Created `.github/workflows/ci.yml`
+
+**What:** GitHub Actions workflow that runs on every push to `main`/`feature/**` and on PRs to `main`.
+
+**Matrix:** Python 3.10, 3.11, 3.12 on `ubuntu-latest`  
+**Steps:** checkout → setup-python → `pip install -e ".[dev]"` → `pytest -q`
+
+**Why:** CI is a hard requirement before publishing. It:
+1. Proves the package installs cleanly from `pyproject.toml` on a fresh machine
+2. Protects `main` from broken merges
+3. Shows the green badge on PyPI and GitHub, which signals to users that the tool is maintained
+
+---

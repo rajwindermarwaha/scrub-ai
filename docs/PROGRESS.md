@@ -18,10 +18,40 @@ source .venv/bin/activate
 3. Tell AI **"venv is ready, let's continue"**
 
 ### Next step
-- Create `assets/icon.png` (32×32 or 64×64 PNG for the tray icon)
-- Polish README for PyPI publish (badges, install instructions, usage examples)
-- Set up GitHub Actions CI (`ci.yml`)
-- Publish to PyPI
+- Publish to PyPI:
+  1. Register on [pypi.org](https://pypi.org) and [test.pypi.org](https://test.pypi.org)
+  2. `pip install build twine`
+  3. `python -m build`
+  4. `twine upload --repository testpypi dist/*` (dry run)
+  5. `twine upload dist/*` (real publish)
+  6. Verify `pip install scrub-ai` works from a clean venv
+  7. Merge `feature/v1-windows` → `main`
+
+---
+
+### Session 8 continued — 2026-06-29
+
+**What we did (continued):**
+- Created `assets/icon.png` — 64×64 RGBA PNG generated with Pillow (dark blue rounded square, white shield, blue S cutout)
+- Polished `README.md`:
+  - Added CI badge
+  - Removed PII from features list (v2 item)
+  - Fixed example to match actual v1 CLI output format
+  - Updated detection table to reflect real v1 detectors
+  - Marked v1.0 as complete in roadmap
+- Created `.github/workflows/ci.yml`:
+  - Triggers on push to `main` / `feature/**` and on PRs to `main`
+  - Matrix: Python 3.10, 3.11, 3.12 on `ubuntu-latest`
+  - Steps: checkout → setup-python → `pip install -e ".[dev]"` → `pytest -q`
+
+**What was NOT done:**
+- PyPI publish (saved for next session)
+- Merge to main (after PyPI publish)
+
+**Blockers:**
+- None — need PyPI account to publish
+
+**Status:** 🟢 v1 feature-complete. Ready to publish.
 
 ---
 
