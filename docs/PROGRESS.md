@@ -11,25 +11,32 @@ When starting a new session with AI, share this file so it knows exactly where t
 1. Activate the virtual environment
 ```bash
 cd ~/scrub-ai
-git checkout feature/v1-windows
+git checkout main
 source .venv/bin/activate
 ```
-2. Confirm you're on the right branch and venv is active — you should see `(.venv)` in your prompt
-3. Tell AI **"venv is ready, let's continue"**
 
 ### Next step
-- Publish to PyPI:
-  1. Register on [pypi.org](https://pypi.org) and [test.pypi.org](https://test.pypi.org)
-  2. `pip install build twine`
-  3. `python -m build`
-  4. `twine upload --repository testpypi dist/*` (dry run)
-  5. `twine upload dist/*` (real publish)
-  6. Verify `pip install scrub-ai` works from a clean venv
-  7. Merge `feature/v1-windows` → `main`
+v1.0 is complete and published. Start planning v1.1:
+- PII detection (emails, phone numbers) via Presidio
+- Confidence scoring to reduce false positives
+- `--profile` flag (`--profile aws`, `--profile k8s`)
+- Custom pattern config file
 
 ---
 
-### Session 8 continued — 2026-06-29
+### Session 8 final — 2026-06-29
+
+**What we did:**
+- Installed `build` and `twine`
+- Ran `python -m build` — produced `scrub_ai-1.0.0-py3-none-any.whl` and `scrub_ai-1.0.0.tar.gz`
+- Uploaded to TestPyPI — verified install and sanitization works
+- Uploaded to real PyPI: https://pypi.org/project/scrub-ai/1.0.0/
+- Verified `pip install scrub-ai` from a clean environment outside venv
+- Merged `feature/v1-windows` → `main`
+
+**Status:** 🟢 v1.0 shipped. scrub-ai is live on PyPI.
+
+---
 
 **What we did (continued):**
 - Created `assets/icon.png` — 64×64 RGBA PNG generated with Pillow (dark blue rounded square, white shield, blue S cutout)

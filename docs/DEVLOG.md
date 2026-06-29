@@ -375,9 +375,30 @@ Examples of hardening:
 
 **Why:** The README is the PyPI project page. Everything on it should be accurate for what ships in v1 — listing features that don't exist yet damages credibility.
 
+## Step 28 — Published to PyPI
+
+**What:**
+1. Installed `build` and `twine` into the venv
+2. Ran `python -m build` — produced `scrub_ai-1.0.0-py3-none-any.whl` and `scrub_ai-1.0.0.tar.gz` in `dist/`
+3. Uploaded to TestPyPI with `twine upload --repository testpypi dist/*` and verified install
+4. Uploaded to real PyPI with `twine upload dist/*`
+5. Verified `pip install scrub-ai` from outside the venv — downloaded from PyPI, sanitization worked correctly
+
+**Live at:** https://pypi.org/project/scrub-ai/1.0.0/
+
+**Why TestPyPI first:** TestPyPI is a sandbox that mirrors real PyPI. Uploading there first catches packaging mistakes (missing files, bad metadata) without wasting the real version number.
+
+**Why `__token__` as username:** PyPI no longer accepts passwords for uploads. All uploads must use API tokens. The username is always the literal string `__token__` and the password is the token value.
+
 ---
 
-## Step 27 — Created `.github/workflows/ci.yml`
+## Step 29 — Merged to `main`
+
+**What:** Merged `feature/v1-windows` into `main`. v1.0 is the stable, published release on `main`.
+
+**Why:** `main` is kept clean and only receives merges of complete, tested, published features. Every commit on `main` represents a shippable state.
+
+---
 
 **What:** GitHub Actions workflow that runs on every push to `main`/`feature/**` and on PRs to `main`.
 

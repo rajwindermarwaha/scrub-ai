@@ -51,20 +51,11 @@ Once this data is sent to an AI provider, the developer has no control over how 
 - ✅ Secrets detector — API keys, tokens, passwords, private keys, JWTs
 - ✅ Cloud detector — AWS (account IDs, ARNs, access keys), GCP (project IDs), Azure (subscription IDs)
 - ✅ Network detector — IPv4, IPv6, internal hostnames, internal URLs
-- ✅ Windows hotkey — `Ctrl+Shift+S` sanitizes clipboard contents
+- ✅ Windows hotkey — `Ctrl+Alt+S` sanitizes clipboard contents
 - ✅ Windows system tray icon — start/stop, enable/disable
 - ✅ Windows toast notifications — tells user what was found
 - ✅ Sanitization report — summary of what was detected and masked
 - ✅ Published on PyPI
-
-### Out of V1 (future)
-- ❌ Watch mode (automatic clipboard monitoring without hotkey)
-- ❌ PII detection via NLP (names, addresses) — too slow for v1
-- ❌ VS Code extension
-- ❌ Browser extension
-- ❌ Custom pattern configuration
-- ❌ Team policies / audit log
-- ❌ Fake data replacement (replace with realistic fake values)
 
 ---
 
@@ -96,20 +87,22 @@ Week 2:
 - Add Presidio for NLP-based PII detection (emails, names, phone numbers)
 - Add confidence scoring to reduce false positives
 - Add `--profile` flag (`--profile aws`, `--profile k8s`)
+- Custom pattern config file (`~/.scrub-ai/patterns.json`)
+- Fake data replacement (replace with realistic fake values instead of `[REDACTED]`)
 
 ### Phase 3 — V1.2 (Month 2)
 **Goal:** Watch mode + community growth
 
-- Watch mode (automatic clipboard monitoring)
-- Custom pattern config file (`~/.scrub-ai/patterns.json`)
+- Watch mode (automatic clipboard monitoring without needing the hotkey)
 - Community feedback incorporated
 - Blog post published
 
 ### Phase 4 — V2.0 (Month 3+)
-**Goal:** IDE integration
+**Goal:** IDE + browser integration
 
 - VS Code extension
-- Browser extension
+- Browser extension (warns before pasting into ChatGPT/Claude)
+- Team policies / audit log
 
 ---
 
@@ -117,8 +110,8 @@ Week 2:
 
 | Week | Goal | Status |
 |---|---|---|
-| Week 1 | Project setup + all detectors + CLI | 🔲 Not started |
-| Week 2 | Hotkey + tray + PyPI publish | 🔲 Not started |
+| Week 1 | Project setup + all detectors + CLI | ✅ Complete |
+| Week 2 | Hotkey + tray + tests + PyPI publish | ✅ Complete (publish pending) |
 | Week 3 | PII detection | 🔲 Not started |
 | Week 4 | Watch mode + blog post | 🔲 Not started |
 
