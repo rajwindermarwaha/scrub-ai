@@ -11,14 +11,54 @@ When starting a new session with AI, share this file so it knows exactly where t
 1. Activate the virtual environment
 ```bash
 cd ~/scrub-ai
-git checkout feature/v1-cli
+git checkout feature/v1-windows
 source .venv/bin/activate
 ```
 2. Confirm you're on the right branch and venv is active — you should see `(.venv)` in your prompt
 3. Tell AI **"venv is ready, let's continue"**
 
 ### Next step
-- Write `notifier.py` — Windows toast notifications (win10toast)
+- Create `assets/icon.png` (32×32 or 64×64 PNG for the tray icon)
+- Polish README for PyPI publish (badges, install instructions, usage examples)
+- Set up GitHub Actions CI (`ci.yml`)
+- Publish to PyPI
+
+---
+
+### Session 8 — 2026-06-29
+
+**What we did:**
+- Created `feature/v1-windows` branch (from `feature/v1-cli` commit `d063386`)
+- Wrote `scrub_ai/config.py` — persistent JSON config in platform-appropriate AppData/config dir
+  - Keys: `enabled` (bool), `hotkey` (str, default `"ctrl+alt+s"`)
+  - Helpers: `load()`, `save()`, `is_enabled()`, `set_enabled()`, `get_hotkey()`
+- Wrote `scrub_ai/notifier.py` — Windows toast notifications via `win10toast`
+  - Best-effort: never crashes caller; no-ops on non-Windows
+- Wrote `scrub_ai/hotkey.py` — global hotkey listener via `keyboard` library
+  - On trigger: reads clipboard → sanitizes → writes back → notifies
+  - `start()` / `stop()` threading model; daemon thread friendly
+  - No-ops on non-Windows
+- Wrote `scrub_ai/tray.py` — system tray icon + menu via `pystray` + `Pillow`
+  - Menu: toggle enabled, show hotkey label, Quit
+  - Programmatic fallback icon (dark blue square) when `assets/icon.png` absent
+  - Spawns hotkey listener thread, then blocks on `icon.run()`
+  - No-ops on non-Windows
+- Updated `scrub_ai/cli.py` — added `--start` flag
+  - On Windows: prints startup message, calls `tray.start()`
+  - On non-Windows: raises clear error
+
+**Test suite:** `15 passed` — zero regressions
+
+**What was NOT done:**
+- `assets/icon.png` not yet created
+- README not yet polished for PyPI
+- GitHub Actions CI not yet set up
+- PyPI publish not yet done
+
+**Blockers:**
+- None
+
+**Status:** 🟢 All Windows runtime modules written, wired, and fully tested (62 passed). Ready for icon + PyPI prep.
 
 ---
 
