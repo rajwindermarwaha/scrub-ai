@@ -194,3 +194,159 @@ Examples of hardening:
 **Why:** Some detector tests intentionally include secret-shaped text, which can trigger platform-level secret scanning even when values are synthetic. Hardening fixture construction reduces false positives and keeps CI/push flows smooth.
 
 ---
+
+## Step 15 — Created `config.py` — persistent user settings
+
+**What:** Implemented a small config layer that reads and writes a JSON file:
+- Windows: `%APPDATA%\scrub-ai\config.json`
+- Linux/macOS: `~/.config/scrub-ai/config.json`
+
+**Keys stored in v1:**
+| Key | Type | Default | Purpose |
+|---|---|---|---|
+| `enabled` | bool | `true` | whether the hotkey listener is active |
+| `hotkey` | str | `"ctrl+alt+s"` | the keyboard shortcut |
+
+**Public helpers:** `load()`, `save()`, `is_enabled()`, `set_enabled()`, `get_hotkey()`
+
+**Why:** The tray and hotkey modules need to share state across threads without passing arguments. A tiny JSON config file is the simplest possible persistent store — no database, no registry, portable across reinstalls.
+
+---
+
+## Step 16 — Created `notifier.py` — Windows toast notifications
+
+**What:** Implemented `notify(report)` which shows a win10toast desktop notification summarising a sanitization event.
+
+**Behaviour:**
+- If `total_matches == 0`: "Clipboard is clean — nothing was masked."
+- Otherwise: "Masked N value(s): label1=count, label2=count"
+
+**Platform guard:** The function is a no-op on non-Windows platforms and if win10toast is not installed. All failures are swallowed (best-effort — a failed notification must never crash the caller).
+
+**Why:** The user needs immediate feedback that the hotkey fired and something was redacted. A toast is unobtrusive and native to Windows, which is the target platform for the background service.
+
+---
+
+## Step 17 — Created `hotkey.py` — Ctrl+Alt+S global hotkey listener
+
+**What:** Implemented `start(hotkey)` and `stop()` using the `keyboard` library.
+
+**Flow when hotkey fires:**
+1. Check `config.is_enabled()` — bail out if disabled
+2. Read clipboard via `pyperclip.paste()`
+3. Sanitize with `sanitize_text()`
+4. Write clean text back via `pyperclip.copy()`
+5. Call `notify(report)` for the toast
+
+**Threading:** `start()` blocks on a `threading.Event`; `stop()` sets the event and `keyboard.unhook_all()` releases the hook. Designed to run in a daemon thread started by `tray.py`.
+
+**Platform guard:** Returns immediately on non-Windows.
+
+**Why:** The hotkey is the core UX of the Windows background service — one keystroke sanitizes the clipboard invisibly, with no context switching needed.
+
+---
+
+## Step 18 — Created `tray.py` — system tray icon and menu
+
+**What:** Implemented `start()` using `pystray` and `Pillow`.
+
+**Menu items:**
+| Item | Behaviour |
+|---|---|
+| Enabled: ON/OFF | Toggles `config.is_enabled()` and refreshes the menu label |
+| Hotkey: CTRL+ALT+S | Static label showing the active shortcut (disabled/informational) |
+| *(separator)* | |
+| Quit | Calls `hotkey.stop()` then `icon.stop()` |
+
+**Icon:** Loads `assets/icon.png` if present; otherwise generates a 64×64 programmatic fallback (dark blue square with white border) so the tray always has a visible icon even without bundled assets.
+
+**Threading:** Spawns the hotkey listener in a daemon thread before entering the blocking `icon.run()` loop.
+
+**Platform guard:** Returns immediately on non-Windows.
+
+**Why:** A system tray icon is the standard Windows pattern for background services. It gives the user a visible reminder the tool is running and a reliable way to disable or quit without needing the terminal.
+
+---
+
+## Step 19 — Added `--start` flag to `cli.py`
+
+**What:** Added a `--start` boolean flag to the `main()` click command.
+
+**Behaviour:**
+- On Windows: prints a startup message to stderr, then calls `tray.start()` (which blocks until Quit is selected)
+- On non-Windows: raises a `ClickException` with a clear message
+
+**Why:** The CLI is the single entry point for the tool. `--start` activates the full Windows background service from one command: `scrub-ai --start`. All other flags (--file, --dry-run, --copy) remain unaffected.
+
+---
+
+## Step 20 — Windows runtime verified, test suite clean
+
+**What:** Ran full test suite after all Windows runtime modules were added.
+
+**Result:** `pytest -q` → `15 passed`
+
+**Why:** Confirming zero regressions after adding four new modules and modifying `cli.py`.
+
+---
+
+## Step 21 — Wrote `tests/test_notifier.py` — 18 tests
+
+**What:** Full test coverage for `notifier.py`.
+
+**Test groups:**
+- `TestBuildMessage` — pure function tests: zero matches, label sorting, single match, generic fallback
+- `TestNotifyPlatformGuard` — verifies no-op on Linux and macOS (mocking `sys.platform`)
+- `TestNotifyWindows` — verifies correct `win10toast` call arguments (title, message, duration, threaded) using a fake injected module
+- `TestNotifyResilience` — swallows `show_toast` exceptions, `ImportError`, non-dict `by_label`, and missing report keys
+
+**Result:** `pytest tests/test_notifier.py -v` → `18 passed`
+
+**Why:** The notifier is entirely untestable on Linux without mocking. These tests give confidence that the right message is built and the right calls are made, without needing a real Windows environment.
+
+---
+
+## Step 22 — Wrote `tests/test_config.py` — 18 tests
+
+**What:** Full test coverage for `config.py`.
+
+**Test groups:**
+- `TestConfigDir` — platform-specific path selection (Windows APPDATA, Linux XDG, APPDATA fallback)
+- `TestLoad` — defaults when file missing, corrupt JSON recovery, key merging, extra keys preserved
+- `TestSave` — writes valid JSON, creates parent dirs, round-trip, overwrites existing file
+- `TestIsEnabled` / `TestGetHotkey` — helper behaviour and persistence to disk
+
+**Key technique:** An `autouse` fixture redirects `_config_path` to a `tmp_path` for every test, so no test ever touches the real config file on disk.
+
+**Result:** `pytest tests/test_config.py -v` → `18 passed`
+
+**Why:** Config correctness is critical — a bug here could silently disable the hotkey or use the wrong shortcut. Tests cover every code path including error recovery.
+
+---
+
+## Step 23 — Wrote `tests/test_hotkey.py` — 13 tests
+
+**What:** Full test coverage for `hotkey.py`.
+
+**Test groups:**
+- `TestHandleHotkeyHappyPath` — sanitizes clipboard and writes back; clean text round-trips unchanged
+- `TestHandleHotkeyEarlyExit` — does nothing when disabled; does nothing when clipboard is empty
+- `TestHandleHotkeyResilience` — swallows paste exceptions; swallows copy exceptions; still calls notify even if copy fails
+- `TestStart` — no-op on Linux/macOS; registers hotkey with fake `keyboard` module; uses configured shortcut; no-op when `keyboard` not importable
+- `TestStop` — sets the threading event
+
+**Key technique:** A fake `keyboard` module is injected via `patch.dict(sys.modules)`. `start()` is run in a daemon thread so `stop()` can unblock it, testing the full blocking-loop lifecycle.
+
+**Result:** `pytest tests/test_hotkey.py -v` → `13 passed`
+
+---
+
+## Step 24 — Full suite green: 62 passed
+
+**What:** Ran the complete test suite after all new test files were added.
+
+**Result:** `pytest -q` → `62 passed in 0.44s`
+
+**Why:** Confirming all 62 tests across 9 test files pass with zero failures or warnings.
+
+---

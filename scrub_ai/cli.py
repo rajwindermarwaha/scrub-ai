@@ -7,6 +7,7 @@ import click
 import pyperclip
 
 from scrub_ai.sanitizer import sanitize_text
+from scrub_ai import config as cfg
 
 
 def _load_input(file_path: str | None) -> str:
@@ -36,8 +37,18 @@ def _format_report(report: dict[str, object]) -> str:
 @click.option("--file", "file_path", type=click.Path(exists=True, dir_okay=False, path_type=str), help="Read input from a file.")
 @click.option("--dry-run", is_flag=True, help="Show detections but do not modify the output text.")
 @click.option("--copy", "copy_output", is_flag=True, help="Copy output text to clipboard.")
-def main(file_path: str | None, dry_run: bool, copy_output: bool) -> None:
+@click.option("--start", is_flag=True, help="Start background hotkey listener and system tray (Windows only).")
+def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool) -> None:
     """Sanitize sensitive content from text."""
+
+    if start:
+        if sys.platform != "win32":
+            raise click.ClickException("--start is only supported on Windows.")
+        from scrub_ai import tray
+        click.echo("scrub-ai running. Press Ctrl+Alt+S to sanitize clipboard. Right-click the tray icon to quit.", err=True)
+        tray.start()
+        return
+
     input_text = _load_input(file_path)
     clean_text, report = sanitize_text(input_text)
 
