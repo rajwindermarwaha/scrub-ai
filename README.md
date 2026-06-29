@@ -6,6 +6,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue.svg)]()
+[![CI](https://github.com/rajwindermarwaha/scrub-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/rajwindermarwaha/scrub-ai/actions/workflows/ci.yml)
 
 ---
 
@@ -32,7 +33,6 @@ Once that data leaves your machine, you have no control over it.
 - 🔑 **Secrets detection** — API keys, tokens, passwords, private keys
 - ☁️ **Cloud detection** — AWS account IDs, ARNs, GCP project IDs, Azure subscriptions
 - 🌐 **Network detection** — IP addresses, internal hostnames, internal URLs
-- 👤 **PII detection** — email addresses, phone numbers *(v2)*
 - ⌨️ **Windows hotkey** — press `Ctrl+Alt+S` to sanitize clipboard instantly
 - 🖥️ **System tray** — runs quietly in the background
 - 📋 **CLI** — pipe any text through it from the terminal
@@ -84,29 +84,25 @@ scrub-ai --start
 ```
 ERROR 2024-01-15 14:32:01 - Connection failed
   host: db01.prod.internal
-  user: john.doe@mycompany.com
   password: myS3cretP@ss123
-  AWS Account: 123456789012
-  API Key: AKIAIOSFODNN7EXAMPLE
-  IP: 10.0.1.45
+  aws_access_key_id: AKIAIOSFODNN7EXAMPLE
+  aws_account_id: 123456789012
+  ip: 10.0.1.45
 ```
 
 **Output:**
 ```
 ERROR 2024-01-15 14:32:01 - Connection failed
   host: [INTERNAL_HOST]
-  user: [EMAIL]
   password: [REDACTED]
-  AWS Account: [AWS_ACCOUNT_ID]
-  API Key: [AWS_ACCESS_KEY]
-  IP: [IP_ADDRESS]
+  aws_access_key_id: [AWS_ACCESS_KEY]
+  aws_account_id: [AWS_ACCOUNT_ID]
+  ip: [IP_ADDRESS]
 ```
 
-**Report:**
+**Detection summary (stderr):**
 ```
-✅ Sanitized successfully
-   Detected: 1 password, 1 email, 1 AWS account ID, 1 AWS access key, 1 IP address, 1 internal hostname
-   Safe to share with AI.
+Detected 5 sensitive value(s): aws_access_key=1, aws_account_id=1, internal_host=1, ipv4=1, password=1
 ```
 
 ---
@@ -119,18 +115,16 @@ ERROR 2024-01-15 14:32:01 - Connection failed
 | AWS infrastructure | Account IDs, ARNs, S3 URLs |
 | GCP credentials | Service account keys, project IDs |
 | Azure credentials | Subscription IDs, connection strings |
-| Generic secrets | API keys, bearer tokens, JWTs, private keys |
-| Database | Connection strings, passwords |
+| Generic secrets | API keys, bearer tokens, JWTs, private keys, hex tokens |
+| Passwords | `password=`, `passwd=`, `pwd=` key-value patterns |
 | Network | IPv4, IPv6, internal hostnames, internal URLs |
-| PII | Email addresses, phone numbers *(v2)* |
-| Filesystem | Absolute paths, usernames in paths |
 
 ---
 
 ## Roadmap
 
 - [x] Project setup
-- [ ] **v1.0** — CLI + secrets + cloud + network detection + Windows hotkey
+- [x] **v1.0** — CLI + secrets + cloud + network detection + Windows hotkey + system tray
 - [ ] **v1.1** — PII detection (emails, phones) via Presidio
 - [ ] **v1.2** — Watch mode (automatic clipboard monitoring)
 - [ ] **v2.0** — VS Code extension
