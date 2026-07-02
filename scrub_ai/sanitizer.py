@@ -5,6 +5,8 @@ from dataclasses import dataclass
 
 from scrub_ai.detectors import CloudDetector, NetworkDetector, SecretsDetector
 from scrub_ai.detectors.base import BaseDetector, Match
+from scrub_ai.detectors.custom import CustomPatternDetector
+from scrub_ai.detectors.pii import PIIDetector
 
 
 @dataclass
@@ -22,13 +24,18 @@ class Sanitizer:
             SecretsDetector(),
             CloudDetector(),
             NetworkDetector(),
+            CustomPatternDetector(),
+            PIIDetector(),
         ]
 
-    def sanitize(self, text: str) -> SanitizationResult:
+    def sanitize(self, text: str, min_confidence: float = 0.0) -> SanitizationResult:
         """Run detectors, resolve overlaps, apply replacements, and build a report."""
         all_matches: list[Match] = []
         for detector in sorted(self.detectors, key=lambda d: d.priority):
             all_matches.extend(detector.detect(text))
+
+        if min_confidence > 0.0:
+            all_matches = [m for m in all_matches if m.confidence >= min_confidence]
 
         selected_matches = self._resolve_overlaps(all_matches)
         clean_text = self._apply_replacements(text, selected_matches)
@@ -79,7 +86,7 @@ class Sanitizer:
         }
 
 
-def sanitize_text(text: str, detectors: list[BaseDetector] | None = None) -> tuple[str, dict[str, object]]:
+def sanitize_text(text: str, detectors: list[BaseDetector] | None = None, min_confidence: float = 0.0) -> tuple[str, dict[str, object]]:
     """Convenience helper returning `(clean_text, report)`."""
-    result = Sanitizer(detectors=detectors).sanitize(text)
+    result = Sanitizer(detectors=detectors).sanitize(text, min_confidence=min_confidence)
     return result.clean_text, result.report

@@ -8,6 +8,7 @@ import pyperclip
 
 from scrub_ai.sanitizer import sanitize_text
 from scrub_ai import config as cfg
+from scrub_ai.profiles import available_profiles, get_detectors_for_profile
 
 
 def _load_input(file_path: str | None) -> str:
@@ -38,7 +39,9 @@ def _format_report(report: dict[str, object]) -> str:
 @click.option("--dry-run", is_flag=True, help="Show detections but do not modify the output text.")
 @click.option("--copy", "copy_output", is_flag=True, help="Copy output text to clipboard.")
 @click.option("--start", is_flag=True, help="Start background hotkey listener and system tray (Windows only).")
-def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool) -> None:
+@click.option("--profile", type=click.Choice(available_profiles(), case_sensitive=False), default=None, help="Limit detection to a named profile (aws, k8s, secrets, network).")
+@click.option("--min-confidence", type=click.FloatRange(0.0, 1.0), default=0.0, show_default=True, help="Minimum confidence threshold for detections (0.0–1.0).")
+def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool, profile: str | None, min_confidence: float) -> None:
     """Sanitize sensitive content from text."""
 
     if start:
@@ -50,7 +53,8 @@ def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool) -
         return
 
     input_text = _load_input(file_path)
-    clean_text, report = sanitize_text(input_text)
+    detectors = get_detectors_for_profile(profile) if profile else None
+    clean_text, report = sanitize_text(input_text, detectors=detectors, min_confidence=min_confidence)
 
     output_text = input_text if dry_run else clean_text
     sys.stdout.write(output_text)

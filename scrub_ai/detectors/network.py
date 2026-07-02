@@ -16,6 +16,7 @@ class NetworkDetector(BaseDetector):
             ),
             "[IP_ADDRESS]",
             "ipv4_address",
+            0.90,
         ),
 
         # IPv6 addresses (full and compressed forms)
@@ -25,6 +26,7 @@ class NetworkDetector(BaseDetector):
             ),
             "[IP_ADDRESS]",
             "ipv6_address",
+            0.85,
         ),
 
         # Internal hostnames
@@ -35,6 +37,7 @@ class NetworkDetector(BaseDetector):
             ),
             "[INTERNAL_HOSTNAME]",
             "internal_hostname",
+            0.85,
         ),
 
         # Internal URLs
@@ -45,5 +48,6 @@ class NetworkDetector(BaseDetector):
             ),
             "[INTERNAL_URL]",
             "internal_url",
+            0.90,
         ),
     ]
