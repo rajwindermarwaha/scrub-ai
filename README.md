@@ -49,8 +49,15 @@ Once that data leaves your machine, you have no control over it.
 ### Install
 
 ```bash
+# Standard install — secrets, cloud, network detection, profiles, custom patterns
 pip install scrub-ai
+
+# With PII detection (emails, phone numbers, names) — adds ~400 MB spacy model
+pip install "scrub-ai[pii]"
+python -m spacy download en_core_web_lg
 ```
+
+> **Note:** PII detection is completely optional. All other features work without it.
 
 ### CLI Usage
 
@@ -78,12 +85,9 @@ scrub-ai --min-confidence 0.85 --file logs.txt
 
 ### PII Detection (optional)
 
-```bash
-# Install with PII support
-pip install "scrub-ai[pii]"
-python -m spacy download en_core_web_lg
+Install with `pip install "scrub-ai[pii]"` and download the spacy model (see Install section above), then emails, phone numbers, and names are automatically detected:
 
-# Now emails, phone numbers, and names are also detected
+```bash
 echo "Call John Smith at 555-867-5309" | scrub-ai
 # → Call [PERSON] at [PHONE_NUMBER]
 ```
