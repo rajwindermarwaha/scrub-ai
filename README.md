@@ -52,12 +52,15 @@ Once that data leaves your machine, you have no control over it.
 # Standard install — secrets, cloud, network detection, profiles, custom patterns
 pip install scrub-ai
 
-# With PII detection (emails, phone numbers, names) — adds ~400 MB spacy model
+# With PII detection (emails, phone numbers, names)
+# Step 1: install the package with PII dependencies (~400 MB)
 pip install "scrub-ai[pii]"
+# Step 2: download the spacy language model (required — PII detection will not work without this)
 python -m spacy download en_core_web_lg
 ```
 
 > **Note:** PII detection is completely optional. All other features work without it.
+> If you skip the `spacy download` step, scrub-ai will still run but PII (emails, phones, names) will not be detected.
 
 ### CLI Usage
 
