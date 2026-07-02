@@ -33,6 +33,10 @@ Once that data leaves your machine, you have no control over it.
 - 🔑 **Secrets detection** — API keys, tokens, passwords, private keys
 - ☁️ **Cloud detection** — AWS account IDs, ARNs, GCP project IDs, Azure subscriptions
 - 🌐 **Network detection** — IP addresses, internal hostnames, internal URLs
+- 🧑 **PII detection** — emails, phone numbers, names via Presidio (optional)
+- 🎯 **Confidence scoring** — filter low-signal matches with `--min-confidence`
+- 🗂️ **Named profiles** — focus on `aws`, `k8s`, `secrets`, or `network`
+- 📝 **Custom patterns** — add your own regex rules via a local JSON file
 - ⌨️ **Windows hotkey** — press `Ctrl+Alt+S` to sanitize clipboard instantly
 - 🖥️ **System tray** — runs quietly in the background
 - 📋 **CLI** — pipe any text through it from the terminal
@@ -62,7 +66,44 @@ scrub-ai --dry-run --file logs.txt
 
 # Sanitize and copy result to clipboard
 scrub-ai --file logs.txt --copy
+
+# Focus on AWS credentials only (ignore network noise)
+scrub-ai --profile aws --file logs.txt
+
+# Only mask high-confidence detections (0.0-1.0)
+scrub-ai --min-confidence 0.85 --file logs.txt
+
+# Available profiles: aws, k8s, secrets, network
 ```
+
+### PII Detection (optional)
+
+```bash
+# Install with PII support
+pip install "scrub-ai[pii]"
+python -m spacy download en_core_web_lg
+
+# Now emails, phone numbers, and names are also detected
+echo "Call John Smith at 555-867-5309" | scrub-ai
+# → Call [PERSON] at [PHONE_NUMBER]
+```
+
+### Custom Patterns
+
+Create `~/.config/scrub-ai/patterns.json` (Linux/macOS) or `%APPDATA%\scrub-ai\patterns.json` (Windows):
+
+```json
+[
+  {
+    "pattern": "ticket-\\d+",
+    "replacement": "[TICKET]",
+    "label": "internal_ticket",
+    "confidence": 0.95
+  }
+]
+```
+
+Custom patterns are picked up automatically on every run — no restart needed.
 
 ### Hotkey Usage (Windows only)
 
@@ -125,7 +166,7 @@ Detected 5 sensitive value(s): aws_access_key=1, aws_account_id=1, internal_host
 
 - [x] Project setup
 - [x] **v1.0** — CLI + secrets + cloud + network detection + Windows hotkey + system tray
-- [ ] **v1.1** — PII detection (emails, phones) via Presidio
+- [x] **v1.1** — PII detection (Presidio) + confidence scoring + profiles + custom patterns
 - [ ] **v1.2** — Watch mode (automatic clipboard monitoring)
 - [ ] **v2.0** — VS Code extension
 - [ ] **v2.1** — Browser extension (warns before pasting into ChatGPT)
@@ -144,6 +185,9 @@ cd scrub-ai
 
 # Install dev dependencies
 pip install -e ".[dev]"
+
+# Install with PII support (optional)
+pip install -e ".[pii]"
 
 # Run tests
 pytest
