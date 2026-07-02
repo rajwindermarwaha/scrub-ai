@@ -11,16 +11,36 @@ When starting a new session with AI, share this file so it knows exactly where t
 1. Activate the virtual environment
 ```bash
 cd ~/scrub-ai
-git checkout main
+git checkout feature/v1.1
 source .venv/bin/activate
 ```
 
 ### Next step
-v1.0 is complete and published. Start planning v1.1:
-- PII detection (emails, phone numbers) via Presidio
-- Confidence scoring to reduce false positives
-- `--profile` flag (`--profile aws`, `--profile k8s`)
-- Custom pattern config file
+v1.1 feature work is complete and all 94 tests pass. Ready to:
+- Commit and push `feature/v1.1`
+- Merge into `main`
+- Publish v1.1.0 to PyPI
+
+---
+
+### Session 9 — 2026-07-02
+
+**What we did:**
+- Created `feature/v1.1` branch from `main`
+- Updated `scrub_ai/detectors/base.py` — `patterns` tuples now support optional 4th element for confidence score
+- Added per-pattern confidence values to all three existing detectors (`secrets`, `cloud`, `network`)
+- Created `scrub_ai/detectors/custom.py` — `CustomPatternDetector` loads user-defined regex patterns from `~/.config/scrub-ai/patterns.json` (Linux) or `%APPDATA%\scrub-ai\patterns.json` (Windows)
+- Created `scrub_ai/detectors/pii.py` — `PIIDetector` wraps Microsoft Presidio; silent no-op if not installed
+- Created `scrub_ai/profiles.py` — named profiles (`aws`, `k8s`, `secrets`, `network`) that select a subset of detectors
+- Updated `scrub_ai/sanitizer.py` — default detector list includes `CustomPatternDetector` + `PIIDetector`; `sanitize()` and `sanitize_text()` accept `min_confidence` parameter
+- Updated `scrub_ai/cli.py` — added `--profile` flag and `--min-confidence` flag
+- Updated `scrub_ai/detectors/__init__.py` — exports `CustomPatternDetector` and `PIIDetector`
+- Bumped version to `1.1.0` in `pyproject.toml`; added `[project.optional-dependencies] pii = ["presidio-analyzer>=2.2"]`
+- Wrote tests: `test_custom_detector.py` (11 tests), `test_pii_detector.py` (8 tests), `test_profiles.py` (9 tests), `test_cli_v11.py` (6 tests)
+
+**Result:** `pytest -q` → `94 passed`
+
+**Status:** 🟢 v1.1 feature-complete and fully tested. Ready to publish.
 
 ---
 
@@ -284,11 +304,17 @@ v1.0 is complete and published. Start planning v1.1:
 | 11 | Write `detectors/network.py` | Session 5 | ✅ Done |
 | 12 | Write `sanitizer.py` | Session 5 | ✅ Done |
 | 13 | Write `cli.py` | Session 7 | ✅ Done |
-| 14 | Write `notifier.py` | - | ⏳ Pending |
-| 15 | Write `hotkey.py` | - | ⏳ Pending |
-| 16 | Write `tray.py` | - | ⏳ Pending |
+| 14 | Write `notifier.py` | Session 8 | ✅ Done |
+| 15 | Write `hotkey.py` | Session 8 | ✅ Done |
+| 16 | Write `tray.py` | Session 8 | ✅ Done |
 | 17 | Write tests + fixtures | Session 6 | ✅ Done |
-| 18 | Publish to PyPI | - | ⏳ Pending |
+| 18 | Publish to PyPI | Session 8 | ✅ Done |
+| 19 | Add confidence scoring | Session 9 | ✅ Done |
+| 20 | Write `detectors/custom.py` | Session 9 | ✅ Done |
+| 21 | Write `detectors/pii.py` | Session 9 | ✅ Done |
+| 22 | Write `profiles.py` | Session 9 | ✅ Done |
+| 23 | Add `--profile` and `--min-confidence` CLI flags | Session 9 | ✅ Done |
+| 24 | Publish v1.1.0 to PyPI | - | ⏳ Pending |
 
 ---
 

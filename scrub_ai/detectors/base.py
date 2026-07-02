@@ -17,11 +17,14 @@ class Match:
 class BaseDetector:
     name: str = ""
     priority: int = 99
-    patterns: list[tuple[re.Pattern, str, str]] = []  # (pattern, replacement, label)
+    # Each entry is either (pattern, replacement, label) or (pattern, replacement, label, confidence).
+    patterns: list[tuple] = []
 
     def detect(self, text: str) -> list[Match]:
         matches = []
-        for pattern, replacement, label in self.patterns:
+        for entry in self.patterns:
+            pattern, replacement, label = entry[0], entry[1], entry[2]
+            confidence = entry[3] if len(entry) >= 4 else 1.0
             for m in pattern.finditer(text):
                 matches.append(Match(
                     start=m.start(),
@@ -30,5 +33,6 @@ class BaseDetector:
                     replacement=replacement,
                     category=self.name,
                     label=label,
+                    confidence=confidence,
                 ))
         return matches
