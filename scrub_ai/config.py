@@ -5,9 +5,11 @@ Settings are stored in a JSON file:
   - Windows: %APPDATA%\\scrub-ai\\config.json
   - Linux/macOS: ~/.config/scrub-ai/config.json
 
-Only a small set of knobs exist in v1:
-  - enabled (bool)  — whether the hotkey listener is active
-  - hotkey (str)    — the keyboard shortcut string (default "ctrl+alt+s")
+Keys:
+  - enabled (bool)     — whether the hotkey listener is active
+  - hotkey (str)       — the keyboard shortcut string (default "ctrl+alt+s")
+  - watch_mode (bool)  — whether clipboard watch mode is active (default false)
+             watch mode is cross-platform (Windows, Linux, macOS)
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ from pathlib import Path
 _DEFAULTS: dict[str, object] = {
     "enabled": True,
     "hotkey": "ctrl+alt+s",
+    "watch_mode": False,
 }
 
 
@@ -66,3 +69,13 @@ def is_enabled() -> bool:
 
 def get_hotkey() -> str:
     return str(load().get("hotkey", _DEFAULTS["hotkey"]))
+
+
+def is_watch_mode() -> bool:
+    return bool(load().get("watch_mode", False))
+
+
+def set_watch_mode(value: bool) -> None:
+    cfg = load()
+    cfg["watch_mode"] = value
+    save(cfg)
