@@ -11,15 +11,49 @@ When starting a new session with AI, share this file so it knows exactly where t
 1. Activate the virtual environment
 ```bash
 cd ~/scrub-ai
-git checkout feature/v1.1
+git checkout feature/v1.2
 source .venv/bin/activate
 ```
 
 ### Next step
-v1.1 is complete and published. Start planning v1.2:
-- Watch mode (automatic clipboard monitoring without needing the hotkey)
-- Community feedback incorporated
-- Blog post published
+Step 3 — Update `tray.py`:
+- Add **"Watch: ON/OFF"** toggle to the tray menu
+- Starts/stops the watcher thread when toggled
+- Cross-platform toggle (watch mode works on all platforms)
+
+---
+
+### Session 11 — 2026-07-03
+
+**What we did:**
+- Created `feature/v1.2` branch for watch mode
+- Updated `scrub_ai/config.py`:
+  - Added `watch_mode: False` to `_DEFAULTS`
+  - Added `is_watch_mode()` helper
+  - Added `set_watch_mode()` helper
+  - Updated docstring to reflect new key
+- Created `scrub_ai/watcher.py` — cross-platform clipboard watch mode:
+  - Polls clipboard every 500ms
+  - Sanitizes automatically when clipboard content changes
+  - Only writes back if something was actually masked
+  - Skips sanitization when `cfg.is_watch_mode()` is False (loop keeps running)
+  - `start()` / `stop()` threading model, same pattern as `hotkey.py`
+  - Uses `_stop_event.wait(timeout=0.5)` for instant shutdown
+- Wrote tests:
+  - `tests/test_config.py` — added `TestIsWatchMode` (5 tests)
+  - `tests/test_watcher.py` — 10 tests covering happy path, resilience, and start/stop
+
+**Result:** `pytest tests/test_config.py tests/test_watcher.py -v` → `32 passed`
+
+**What was NOT done:**
+- `tray.py` not yet updated (Watch ON/OFF toggle)
+- `cli.py` not yet updated
+- README not yet updated
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Steps 1 and 2 complete. Ready for Step 3 — tray.py update.
 
 ---
 
@@ -330,6 +364,9 @@ v1.1 is complete and published. Start planning v1.2:
 | 23 | Add `--profile` and `--min-confidence` CLI flags | Session 9 | ✅ Done |
 | 24 | Publish v1.1.0 to PyPI | Session 9 | ✅ Done |
 | 25 | New icon design (shield + bolt) + tagline + LinkedIn post | Session 10 | ✅ Done |
+| 26 | Update `config.py` for watch mode | Session 11 | ✅ Done |
+| 27 | Create `watcher.py` | Session 11 | ✅ Done |
+| 28 | Update `tray.py` — watch mode toggle | Session 11 | 🔄 Next |
 
 ---
 

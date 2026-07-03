@@ -173,3 +173,31 @@ class TestGetHotkey:
             encoding="utf-8",
         )
         assert config.get_hotkey() == "ctrl+shift+x"
+
+
+# ---------------------------------------------------------------------------
+# is_watch_mode() / set_watch_mode()
+# ---------------------------------------------------------------------------
+
+class TestIsWatchMode:
+    def test_false_by_default(self) -> None:
+        assert config.is_watch_mode() is False
+
+    def test_true_after_set_watch_mode_true(self) -> None:
+        config.set_watch_mode(True)
+        assert config.is_watch_mode() is True
+
+    def test_false_after_set_watch_mode_false(self) -> None:
+        config.set_watch_mode(True)
+        config.set_watch_mode(False)
+        assert config.is_watch_mode() is False
+
+    def test_persists_to_disk(self, isolated_config: Path) -> None:
+        config.set_watch_mode(True)
+        data = json.loads(isolated_config.read_text(encoding="utf-8"))
+        assert data["watch_mode"] is True
+
+    def test_does_not_affect_other_keys(self) -> None:
+        config.set_watch_mode(True)
+        assert config.is_enabled() is True
+        assert config.get_hotkey() == "ctrl+alt+s"

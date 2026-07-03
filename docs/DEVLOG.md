@@ -392,6 +392,40 @@ Examples of hardening:
 
 ---
 
+## Step 31 — Updated `config.py` for watch mode
+
+**What:**
+- Added `watch_mode: False` to `_DEFAULTS`
+- Added `is_watch_mode()` helper — returns current watch mode state from disk
+- Added `set_watch_mode()` helper — persists watch mode state to disk
+- Updated docstring
+
+**Why:** `tray.py` needs to read and write watch mode state across threads without passing arguments. Same pattern used for `enabled` and `hotkey` keys already in config.
+
+---
+
+## Step 32 — Created `watcher.py` + tests
+
+**What:** Implemented clipboard polling loop:
+- Checks clipboard every 500ms via `pyperclip`
+- Sanitizes automatically when content changes
+- Only writes back and notifies if something was actually masked
+- `cfg.is_watch_mode()` checked inside the loop — toggling watch mode from tray takes effect instantly without restarting the thread
+- `_stop_event.wait(timeout=0.5)` instead of `time.sleep()` — shutdown is instant when `stop()` is called
+- Stores `clean_text` (not `current`) as `last_text` to prevent re-sanitizing on the next poll
+
+**Tests added:**
+- `tests/test_config.py` — `TestIsWatchMode` (5 tests): default false, set true/false, persists to disk, does not affect other keys
+- `tests/test_watcher.py` — 10 tests: sanitizes on change, skips clean text, skips same text twice, skips when watch mode off, skips empty clipboard, swallows paste/copy exceptions, start/stop threading
+
+**Result:** `32 passed`
+
+**Why cross-platform:** Watch mode only uses `pyperclip` which works on Windows, Linux, and macOS. Unlike `hotkey.py` which requires the `keyboard` library (Windows only), there is no platform restriction here.
+
+**Why keep `hotkey.py`:** Hotkey and watch mode serve different use cases. Hotkey = manual control. Watch mode = fully automatic. They complement each other.
+
+---
+
 ## Step 30 — Updated branding: new icon + tagline
 
 **What:**
