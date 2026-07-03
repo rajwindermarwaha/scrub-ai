@@ -16,10 +16,10 @@ source .venv/bin/activate
 ```
 
 ### Next step
-v1.1 feature work is complete and all 94 tests pass. Ready to:
-- Commit and push `feature/v1.1`
-- Merge into `main`
-- Publish v1.1.0 to PyPI
+v1.1 is complete and published. Start planning v1.2:
+- Watch mode (automatic clipboard monitoring without needing the hotkey)
+- Community feedback incorporated
+- Blog post published
 
 ---
 
@@ -314,7 +314,7 @@ v1.1 feature work is complete and all 94 tests pass. Ready to:
 | 21 | Write `detectors/pii.py` | Session 9 | ✅ Done |
 | 22 | Write `profiles.py` | Session 9 | ✅ Done |
 | 23 | Add `--profile` and `--min-confidence` CLI flags | Session 9 | ✅ Done |
-| 24 | Publish v1.1.0 to PyPI | - | ⏳ Pending |
+| 24 | Publish v1.1.0 to PyPI | Session 9 | ✅ Done |
 
 ---
 
