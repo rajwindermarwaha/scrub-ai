@@ -49,17 +49,16 @@ def _make_icon():
     if _ICON_PATH.exists():
         return Image.open(_ICON_PATH).convert("RGBA")
 
-    # Generate a minimal fallback icon: dark blue square with white "S"
+    # Generate a minimal fallback icon: dark blue rounded square with shield + bolt
     size = 64
-    img = Image.new("RGBA", (size, size), color=(30, 90, 160, 255))
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
-    # Draw a white rectangle border
-    draw.rectangle([4, 4, size - 5, size - 5], outline=(255, 255, 255, 255), width=3)
-    # Draw a simple "S" in the centre using lines
-    cx, cy = size // 2, size // 2
-    r = 10
-    draw.arc([cx - r, cy - r * 2, cx + r, cy], start=0, end=270, fill=(255, 255, 255, 255), width=3)
-    draw.arc([cx - r, cy, cx + r, cy + r * 2], start=180, end=450, fill=(255, 255, 255, 255), width=3)
+    cx = size // 2
+    draw.rounded_rectangle([0, 0, size - 1, size - 1], radius=12, fill=(25, 90, 170, 255))
+    shield_pts = [(cx, 8), (cx + 20, 14), (cx + 20, 34), (cx, 56), (cx - 20, 34), (cx - 20, 14)]
+    draw.polygon(shield_pts, fill=(255, 255, 255, 240))
+    bolt_pts = [(cx + 4, 16), (cx - 2, 32), (cx + 4, 32), (cx - 4, 50), (cx + 10, 30), (cx + 3, 30), (cx + 10, 16)]
+    draw.polygon(bolt_pts, fill=(25, 90, 170, 255))
     return img
 
 
