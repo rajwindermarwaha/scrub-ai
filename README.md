@@ -1,4 +1,8 @@
-# 🧹 scrub-ai
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rajwindermarwaha/scrub-ai/main/assets/icon.png" width="80" alt="scrub-ai logo"/>
+</p>
+
+# scrub-ai
 
 > Sanitize sensitive content from any text before sharing with AI assistants.
 
