@@ -392,7 +392,20 @@ Examples of hardening:
 
 ---
 
-## Step 29 — Merged to `main`
+## Step 30 — Updated branding: new icon + tagline
+
+**What:**
+- Replaced `assets/icon.png` with a new design: classic pointed-bottom shield with a lightning bolt cutout inside
+- Updated `assets/generate_icon.py` to draw the new design programmatically
+- Updated fallback icon in `scrub_ai/tray.py` to match (shield + bolt instead of "S")
+- New tagline: **"Shield your prompts."**
+- Updated README.md feature emojis: 🛡️ secrets, 📡 network, 🕵️ PII
+- Published LinkedIn post announcing scrub-ai
+
+**Why:** The original icon had a blue "S" cutout which didn't communicate the tool's purpose visually. The new shield + lightning bolt design reads as "fast security" at a glance — more aligned with the tool's identity. The tagline "Shield your prompts." ties the icon, the name, and the purpose together in four words.
+
+---
+
 
 **What:** Merged `feature/v1-windows` into `main`. v1.0 is the stable, published release on `main`.
 

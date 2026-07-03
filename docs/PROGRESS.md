@@ -23,6 +23,20 @@ v1.1 is complete and published. Start planning v1.2:
 
 ---
 
+### Session 10 — 2026-07-03
+
+**What we did:**
+- Replaced `assets/icon.png` — new design: classic pointed-bottom shield with lightning bolt cutout (fast + powerful theme)
+- Updated `assets/generate_icon.py` — rewritten to draw new shield + bolt design
+- Updated `scrub_ai/tray.py` — fallback icon (drawn when `icon.png` is missing) updated from "S" cutout to shield + bolt to match new design
+- Updated tagline to **"Shield your prompts."**
+- Updated README.md feature emojis: 🛡️ secrets, 📡 network, 🕵️ PII
+- Wrote and published LinkedIn post announcing scrub-ai
+
+**Status:** 🟢 Branding updated. Ready to commit and push to GitHub.
+
+---
+
 ### Session 9 — 2026-07-02
 
 **What we did:**
@@ -315,6 +329,7 @@ v1.1 is complete and published. Start planning v1.2:
 | 22 | Write `profiles.py` | Session 9 | ✅ Done |
 | 23 | Add `--profile` and `--min-confidence` CLI flags | Session 9 | ✅ Done |
 | 24 | Publish v1.1.0 to PyPI | Session 9 | ✅ Done |
+| 25 | New icon design (shield + bolt) + tagline + LinkedIn post | Session 10 | ✅ Done |
 
 ---
 
