@@ -28,6 +28,7 @@ from pathlib import Path
 
 from scrub_ai import config as cfg
 import scrub_ai.hotkey as hotkey_mod
+import scrub_ai.watcher as watcher_mod
 
 
 # ---------------------------------------------------------------------------
@@ -72,13 +73,24 @@ def _toggle_enabled(icon, item) -> None:  # noqa: ANN001
     icon.update_menu()
 
 
+def _toggle_watch_mode(icon, item) -> None:  # noqa: ANN001
+    current = cfg.is_watch_mode()
+    cfg.set_watch_mode(not current)
+    icon.update_menu()
+
+
 def _quit_app(icon, item) -> None:  # noqa: ANN001
     hotkey_mod.stop()
+    watcher_mod.stop()
     icon.stop()
 
 
 def _enabled_label(item) -> str:  # noqa: ANN001
     return "Enabled: ON" if cfg.is_enabled() else "Enabled: OFF"
+
+
+def _watch_mode_label(item) -> str:  # noqa: ANN001
+    return "Watch Mode: ON" if cfg.is_watch_mode() else "Watch Mode: OFF"
 
 
 # ---------------------------------------------------------------------------
@@ -108,11 +120,21 @@ def start() -> None:
     )
     hotkey_thread.start()
 
+    # Launch clipboard watcher in a background daemon thread
+    watcher_thread = threading.Thread(
+        target=watcher_mod.start,
+        daemon=True,
+        name="scrub-ai-watcher",
+    )
+    watcher_thread.start()
+
     hotkey_label = cfg.get_hotkey().upper()
 
     menu = Menu(
         Item(_enabled_label, _toggle_enabled),
         Item(f"Hotkey: {hotkey_label}", lambda *_: None, enabled=False),
+        Menu.SEPARATOR,
+        Item(_watch_mode_label, _toggle_watch_mode),
         Menu.SEPARATOR,
         Item("Quit", _quit_app),
     )
