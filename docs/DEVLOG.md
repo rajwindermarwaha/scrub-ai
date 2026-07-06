@@ -458,3 +458,33 @@ Examples of hardening:
 3. Shows the green badge on PyPI and GitHub, which signals to users that the tool is maintained
 
 ---
+
+## Step 33 — Wired watch mode into `tray.py` + wrote `tests/test_tray.py`
+
+**What:** Two changes in one step:
+
+**`tray.py` updates:**
+- Imported `scrub_ai.watcher` as `watcher_mod`
+- Added `_toggle_watch_mode(icon, item)` — flips `cfg.is_watch_mode()` and calls `icon.update_menu()`
+- Added `_watch_mode_label(item)` — returns `"Watch Mode: ON"` or `"Watch Mode: OFF"` based on config
+- Added `watcher_mod.stop()` call inside `_quit_app()` — ensures watcher thread exits cleanly on Quit
+- Spawned a second daemon thread (`scrub-ai-watcher`) that runs `watcher_mod.start()` alongside the existing hotkey thread
+- Added `Watch Mode: ON/OFF` toggle as a menu item between the hotkey label and Quit
+
+**`tests/test_tray.py` created — 16 tests:**
+| Group | Tests |
+|---|---|
+| `TestEnabledLabel` | ON when enabled, OFF when disabled |
+| `TestWatchModeLabel` | ON when active, OFF when inactive |
+| `TestToggleEnabled` | flips true→false, false→true; calls `update_menu` |
+| `TestToggleWatchMode` | flips false→true, true→false; calls `update_menu` |
+| `TestQuitApp` | stops hotkey + watcher + icon; correct call order |
+| `TestMakeIcon` | returns 64×64 image when icon.png missing; loads real file |
+| `TestStartPlatformGuard` | no-op on Linux, macOS, and when pystray not importable |
+| `TestStartIntegration` | both daemon threads spawned; `icon.run()` called |
+
+**Key technique:** Config tests use `monkeypatch.setattr(cfg, "_config_path", lambda: tmp_path / "config.json")` — matching the pattern from `test_config.py`. Platform guard tests use `patch.object(sys, "platform", ...)`. The integration test injects a fake `pystray` module and a `_FakeThread` class to capture which thread names were started without running any real threads.
+
+**Result:** `pytest -q` → `124 passed in 0.56s`
+
+**Why:** `tray.py` is the central coordinator of the background service. Now that it manages three subsystems (hotkey, watcher, icon), it needed tests that verify each subsystem is started and stopped correctly and that menu labels reflect live config state.
