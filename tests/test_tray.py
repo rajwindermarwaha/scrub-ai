@@ -132,24 +132,44 @@ class TestQuitApp:
 # ---------------------------------------------------------------------------
 
 class TestMakeIcon:
+    def _fake_pil(self, size=(64, 64)):
+        """Return a fake PIL module that doesn't require Pillow to be installed."""
+        fake_img = MagicMock()
+        fake_img.size = size
+        fake_img.convert.return_value = fake_img
+
+        fake_image_mod = MagicMock()
+        fake_image_mod.new.return_value = fake_img
+        fake_image_mod.open.return_value = fake_img
+
+        fake_pil = types.ModuleType("PIL")
+        fake_pil.Image = fake_image_mod
+        fake_pil.ImageDraw = MagicMock()
+        return fake_pil, fake_image_mod, fake_img
+
     def test_returns_image_when_icon_file_missing(self, tmp_path) -> None:
         from scrub_ai.tray import _make_icon
-        with patch("scrub_ai.tray._ICON_PATH", tmp_path / "nonexistent.png"):
+        fake_pil, fake_image_mod, fake_img = self._fake_pil(size=(64, 64))
+        with (
+            patch("scrub_ai.tray._ICON_PATH", tmp_path / "nonexistent.png"),
+            patch.dict(sys.modules, {"PIL": fake_pil, "PIL.Image": fake_pil.Image, "PIL.ImageDraw": fake_pil.ImageDraw}),
+        ):
             img = _make_icon()
             assert img is not None
-            assert img.size == (64, 64)
+            fake_image_mod.new.assert_called_once()
 
     def test_loads_existing_icon_file(self, tmp_path) -> None:
-        from PIL import Image
         from scrub_ai.tray import _make_icon
-
-        # Write a minimal valid PNG to tmp_path
         icon_path = tmp_path / "icon.png"
-        img_src = Image.new("RGBA", (32, 32), (255, 0, 0, 255))
-        img_src.save(icon_path)
+        icon_path.write_bytes(b"fake png bytes")
 
-        with patch("scrub_ai.tray._ICON_PATH", icon_path):
+        fake_pil, fake_image_mod, fake_img = self._fake_pil(size=(32, 32))
+        with (
+            patch("scrub_ai.tray._ICON_PATH", icon_path),
+            patch.dict(sys.modules, {"PIL": fake_pil, "PIL.Image": fake_pil.Image, "PIL.ImageDraw": fake_pil.ImageDraw}),
+        ):
             img = _make_icon()
+            fake_image_mod.open.assert_called_once_with(icon_path)
             assert img.size == (32, 32)
 
 
