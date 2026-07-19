@@ -53,15 +53,15 @@ Once that data leaves your machine, you have no control over it.
 
 ### What do you need?
 
-| Feature | Install command | Extra step |
-|---|---|---|
-| CLI, file/pipe sanitization | `pip install scrub-ai` | None |
-| Profiles (`--profile`) | `pip install scrub-ai` | None |
-| Custom patterns | `pip install scrub-ai` | None |
-| Watch mode (`--watch`) | `pip install scrub-ai` | Linux: `sudo apt install xclip` / Windows: use `python -m scrub_ai.cli --watch` |
-| Copy to clipboard (`--copy`) | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
-| Hotkey + system tray (`--start`) | `pip install scrub-ai` | Windows only |
-| PII detection (names, emails, phones) | `pip install "scrub-ai[pii]"` | `python -m spacy download en_core_web_lg` |
+| Feature | Run command | Install command | Extra step |
+|---|---|---|---|
+| CLI, file/pipe sanitization | `cat file.txt \| scrub-ai` or `scrub-ai --file file.txt` | `pip install scrub-ai` | None |
+| Profiles | `scrub-ai --profile aws --file logs.txt` | `pip install scrub-ai` | None |
+| Custom patterns | `scrub-ai --file logs.txt` | `pip install scrub-ai` | None |
+| Watch mode | `scrub-ai --watch` | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
+| Copy to clipboard | `scrub-ai --file logs.txt --copy` | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
+| Hotkey + system tray | `scrub-ai --start` | `pip install scrub-ai` | Windows only |
+| PII detection (names, emails, phones) | `scrub-ai --file logs.txt` (auto) | `pip install "scrub-ai[pii]"` | `python -m spacy download en_core_web_lg` |
 
 ### Standard install
 
@@ -181,11 +181,16 @@ scrub-ai --watch
 
 **Prerequisites by platform:**
 
-| Platform | Requirement |
-|---|---|
-| Linux | `sudo apt install xclip` |
-| macOS | None — works out of the box |
-| Windows | None — works out of the box |
+| Platform | Run command | Requirement |
+|---|---|---|
+| Linux | `scrub-ai --watch` | `sudo apt install xclip` first |
+| macOS | `scrub-ai --watch` | None — works out of the box |
+| Windows | `scrub-ai --watch` | Requires Python `Scripts` folder in PATH (see [Windows setup](#windows) above) |
+
+> **Windows tip:** If `scrub-ai` is not recognised as a command, use this instead until you fix the PATH:
+> ```
+> python -m scrub_ai.cli --watch
+> ```
 
 ### Hotkey + system tray (Windows only)
 
