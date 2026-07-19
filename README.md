@@ -58,7 +58,7 @@ Once that data leaves your machine, you have no control over it.
 | CLI, file/pipe sanitization | `pip install scrub-ai` | None |
 | Profiles (`--profile`) | `pip install scrub-ai` | None |
 | Custom patterns | `pip install scrub-ai` | None |
-| Watch mode (`--watch`) | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
+| Watch mode (`--watch`) | `pip install scrub-ai` | Linux: `sudo apt install xclip` / Windows: use `python -m scrub_ai.cli --watch` |
 | Copy to clipboard (`--copy`) | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
 | Hotkey + system tray (`--start`) | `pip install scrub-ai` | Windows only |
 | PII detection (names, emails, phones) | `pip install "scrub-ai[pii]"` | `python -m spacy download en_core_web_lg` |
