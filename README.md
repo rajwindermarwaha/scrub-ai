@@ -75,6 +75,30 @@ python -m spacy download en_core_web_lg
 
 ---
 
+## Platform Setup
+
+The CLI and all detection features work on Windows, Linux, and macOS. Some modes have platform-specific prerequisites.
+
+### Linux
+
+Clipboard access (`--watch`, `--copy`) requires `xclip` or `xsel`:
+
+```bash
+sudo apt install xclip
+```
+
+> WSL (Windows Subsystem for Linux) users: clipboard integration works when running inside a WSL terminal as long as `xclip` is installed.
+
+### macOS
+
+No extra setup needed. `pyperclip` uses the built-in `pbcopy`/`pbpaste` — clipboard access works out of the box.
+
+### Windows
+
+No extra setup needed for clipboard access. For the background hotkey + tray service, see [Hotkey + system tray](#hotkey--system-tray-windows-only) below.
+
+---
+
 ## Usage
 
 ### Basic — pipe or file
@@ -129,6 +153,14 @@ scrub-ai --watch
 - If sensitive content is detected, the clipboard is silently replaced with the clean version
 - If nothing sensitive is found, the clipboard is left unchanged
 - Press `Ctrl+C` to stop
+
+**Prerequisites by platform:**
+
+| Platform | Requirement |
+|---|---|
+| Linux | `sudo apt install xclip` |
+| macOS | None — works out of the box |
+| Windows | None — works out of the box |
 
 ### Hotkey + system tray (Windows only)
 
