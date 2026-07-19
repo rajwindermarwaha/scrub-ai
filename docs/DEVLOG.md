@@ -488,3 +488,59 @@ Examples of hardening:
 **Result:** `pytest -q` → `124 passed in 0.56s`
 
 **Why:** `tray.py` is the central coordinator of the background service. Now that it manages three subsystems (hotkey, watcher, icon), it needed tests that verify each subsystem is started and stopped correctly and that menu labels reflect live config state.
+
+## Step 34 — Added `--watch` flag to `cli.py`
+
+**What:** Added `--watch` boolean flag to the `main()` click command.
+
+**Behaviour:**
+1. Sets `cfg.set_watch_mode(True)` — watcher loop reads this to activate sanitization
+2. Prints "Watch mode ON" message to stderr
+3. Calls `watcher.start()` — blocks until interrupted
+4. `KeyboardInterrupt` (Ctrl+C) is caught silently
+5. `finally` block calls `watcher.stop()` and `cfg.set_watch_mode(False)` — always cleans up
+6. Prints "Watch mode OFF" to stderr
+
+**Why cross-platform:** Unlike `--start`, watch mode only uses `pyperclip` — no platform guard needed. Works on Windows, Linux, and macOS.
+
+**Tests:** `tests/test_cli_v12.py` — 3 tests covering watcher invocation, config state lifecycle, and user messages.
+
+**Result:** `pytest -q` → `127 passed`
+
+---
+
+## Step 35 — Updated `README.md` for v1.2
+
+**What:** Full README rewrite for clarity. Key changes:
+- Install section split into standard vs PII tiers with numbered steps
+- Usage reorganized into 4 logical sections: Basic, Filtering, Watch mode, Hotkey+tray
+- PII detection given its own dedicated section with an input/output table
+- Custom patterns field reference table added (was undocumented)
+- Watch mode section added (was missing entirely)
+- Contributing section updated with venv creation + spaCy download steps
+- Roadmap: marked v1.2 as `[x]` complete
+
+**Why:** The previous README had PII install steps mixed into the install section with no explanation of what PII actually detects. Watch mode had no documentation. The contributing section assumed you already had a venv. All of these are friction points for new users and contributors.
+
+---
+
+## Step 36 — Created `.github/workflows/publish.yml` — manual publish workflow
+
+**What:** GitHub Actions workflow with two jobs:
+
+| Job | Trigger | Target |
+|---|---|---|
+| `publish-test` | Manual (`workflow_dispatch`) | TestPyPI |
+| `publish-pypi` | After `publish-test` succeeds | PyPI (gated by `release` environment approval) |
+
+**`workflow_dispatch` input:** `version` (e.g. `1.2.0`) — for reference/traceability, does not auto-tag.
+
+**Secrets used:**
+- `TEST_PYPI_API_TOKEN` — stored in GitHub repo secrets
+- `PYPI_API_TOKEN` — stored in GitHub repo secrets
+
+**Approval gate:** `publish-pypi` job uses `environment: release`. The `release` environment has required reviewer set to the repo owner — GitHub pauses and sends an approval request before the PyPI job runs.
+
+**Why `workflow_dispatch` instead of tag push:** Publish should be a deliberate action, not a side effect of pushing a tag. This gives full control over when a release goes out.
+
+**Why TestPyPI first:** Catches packaging mistakes (missing files, bad metadata, import errors) before spending the real version number on PyPI.
