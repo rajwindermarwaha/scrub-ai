@@ -58,7 +58,7 @@ Once that data leaves your machine, you have no control over it.
 | CLI, file/pipe sanitization | `cat file.txt \| scrub-ai` or `scrub-ai --file file.txt` | `pip install scrub-ai` | None |
 | Profiles | `scrub-ai --profile aws --file logs.txt` | `pip install scrub-ai` | None |
 | Custom patterns | `scrub-ai --file logs.txt` | `pip install scrub-ai` | None |
-| Watch mode | `scrub-ai --watch` | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
+| Watch mode | `scrub-ai --watch` (or `python -m scrub_ai.cli --watch` on Windows if PATH not set) | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
 | Copy to clipboard | `scrub-ai --file logs.txt --copy` | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
 | Hotkey + system tray | `scrub-ai --start` | `pip install scrub-ai` | Windows only |
 | PII detection (names, emails, phones) | `scrub-ai --file logs.txt` (auto) | `pip install "scrub-ai[pii]"` | `python -m spacy download en_core_web_lg` |
@@ -185,12 +185,7 @@ scrub-ai --watch
 |---|---|---|
 | Linux | `scrub-ai --watch` | `sudo apt install xclip` first |
 | macOS | `scrub-ai --watch` | None — works out of the box |
-| Windows | `scrub-ai --watch` | Requires Python `Scripts` folder in PATH (see [Windows setup](#windows) above) |
-
-> **Windows tip:** If `scrub-ai` is not recognised as a command, use this instead until you fix the PATH:
-> ```
-> python -m scrub_ai.cli --watch
-> ```
+| Windows | `scrub-ai --watch` or `python -m scrub_ai.cli --watch` | Fix PATH (see [Windows setup](#windows) above) or use the `python -m` form |
 
 ### Hotkey + system tray (Windows only)
 
