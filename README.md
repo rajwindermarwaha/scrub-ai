@@ -55,13 +55,13 @@ Once that data leaves your machine, you have no control over it.
 
 | Feature | Run command | Install command | Extra step |
 |---|---|---|---|
-| CLI, file/pipe sanitization | `cat file.txt \| scrub-ai` or `scrub-ai --file file.txt` | `pip install scrub-ai` | None |
-| Profiles | `scrub-ai --profile aws --file logs.txt` | `pip install scrub-ai` | None |
-| Custom patterns | `scrub-ai --file logs.txt` | `pip install scrub-ai` | None |
-| Watch mode | `scrub-ai --watch` (or `python -m scrub_ai.cli --watch` on Windows if PATH not set) | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
-| Copy to clipboard | `scrub-ai --file logs.txt --copy` | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
-| Hotkey + system tray | `scrub-ai --start` | `pip install scrub-ai` | Windows only |
-| PII detection (names, emails, phones) | `scrub-ai --file logs.txt` (auto) | `pip install "scrub-ai[pii]"` | `python -m spacy download en_core_web_lg` |
+| CLI, file/pipe sanitization | `cat file.txt \| scrub-ai` or `scrub-ai --file file.txt` | `pip install scrub-ai==1.2.0` | None |
+| Profiles | `scrub-ai --profile aws --file logs.txt` | `pip install scrub-ai==1.2.0` | None |
+| Custom patterns | `scrub-ai --file logs.txt` | `pip install scrub-ai==1.2.0` | None |
+| Watch mode | `scrub-ai --watch` (or `python -m scrub_ai.cli --watch` on Windows if PATH not set) | `pip install scrub-ai==1.2.0` | Linux: `sudo apt install xclip` |
+| Copy to clipboard | `scrub-ai --file logs.txt --copy` | `pip install scrub-ai==1.2.0` | Linux: `sudo apt install xclip` |
+| Hotkey + system tray | `scrub-ai --start` | `pip install scrub-ai==1.2.0` | Windows only |
+| PII detection (names, emails, phones) | `scrub-ai --file logs.txt` (auto) | `pip install "scrub-ai[pii]==1.2.0"` | `python -m spacy download en_core_web_lg` |
 
 ### Standard install
 
