@@ -51,9 +51,21 @@ Once that data leaves your machine, you have no control over it.
 
 ## Install
 
+### What do you need?
+
+| Feature | Install command | Extra step |
+|---|---|---|
+| CLI, file/pipe sanitization | `pip install scrub-ai` | None |
+| Profiles (`--profile`) | `pip install scrub-ai` | None |
+| Custom patterns | `pip install scrub-ai` | None |
+| Watch mode (`--watch`) | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
+| Copy to clipboard (`--copy`) | `pip install scrub-ai` | Linux: `sudo apt install xclip` |
+| Hotkey + system tray (`--start`) | `pip install scrub-ai` | Windows only |
+| PII detection (names, emails, phones) | `pip install "scrub-ai[pii]"` | `python -m spacy download en_core_web_lg` |
+
 ### Standard install
 
-Includes secrets, cloud, and network detection, profiles, and custom patterns. Works on Windows, Linux, and macOS.
+Includes secrets, cloud, and network detection, profiles, custom patterns, watch mode, and the Windows hotkey + tray.
 
 ```bash
 pip install scrub-ai
