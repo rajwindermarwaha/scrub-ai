@@ -4,7 +4,7 @@
 
 # scrub-ai
 
-> Sanitize sensitive content from any text before sharing with AI assistants.
+> Shield your prompts. Sanitize sensitive content before sharing with AI assistants.
 
 [![PyPI version](https://badge.fury.io/py/scrub-ai.svg)](https://badge.fury.io/py/scrub-ai)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -34,39 +34,50 @@ Once that data leaves your machine, you have no control over it.
 
 ## Features
 
-- 🔑 **Secrets detection** — API keys, tokens, passwords, private keys
+- 🛡️ **Secrets detection** — API keys, tokens, passwords, private keys
 - ☁️ **Cloud detection** — AWS account IDs, ARNs, GCP project IDs, Azure subscriptions
-- 🌐 **Network detection** — IP addresses, internal hostnames, internal URLs
-- 🧑 **PII detection** — emails, phone numbers, names via Presidio (optional)
+- 📡 **Network detection** — IP addresses, internal hostnames, internal URLs
+- 🕵️ **PII detection** — emails, phone numbers, names via Presidio (optional)
 - 🎯 **Confidence scoring** — filter low-signal matches with `--min-confidence`
 - 🗂️ **Named profiles** — focus on `aws`, `k8s`, `secrets`, or `network`
 - 📝 **Custom patterns** — add your own regex rules via a local JSON file
-- ⌨️ **Windows hotkey** — press `Ctrl+Alt+S` to sanitize clipboard instantly
-- 🖥️ **System tray** — runs quietly in the background
+- 👁️ **Watch mode** — automatically sanitize clipboard whenever it changes (all platforms)
+- ⌨️ **Windows hotkey** — press `Ctrl+Alt+S` to sanitize clipboard on demand
+- 🖥️ **System tray** — runs quietly in the background (Windows)
 - 📋 **CLI** — pipe any text through it from the terminal
 - 📦 **PyPI** — install with a single `pip install scrub-ai`
 
 ---
 
-## Quick Start
+## Install
 
-### Install
+### Standard install
+
+Includes secrets, cloud, and network detection, profiles, and custom patterns. Works on Windows, Linux, and macOS.
 
 ```bash
-# Standard install — secrets, cloud, network detection, profiles, custom patterns
 pip install scrub-ai
+```
 
-# With PII detection (emails, phone numbers, names)
-# Step 1: install the package with PII dependencies (~400 MB)
+### With PII detection (optional, ~400 MB)
+
+Adds detection of emails, phone numbers, and person names using Microsoft Presidio and spaCy.
+
+```bash
+# Step 1 — install the package with PII dependencies
 pip install "scrub-ai[pii]"
-# Step 2: download the spacy language model (required — PII detection will not work without this)
+
+# Step 2 — download the spaCy language model (required for PII to work)
 python -m spacy download en_core_web_lg
 ```
 
-> **Note:** PII detection is completely optional. All other features work without it.
-> If you skip the `spacy download` step, scrub-ai will still run but PII (emails, phones, names) will not be detected.
+> If you skip Step 2, scrub-ai will still run — PII detection will silently do nothing.
 
-### CLI Usage
+---
+
+## Usage
+
+### Basic — pipe or file
 
 ```bash
 # Pipe any text through it
@@ -75,33 +86,94 @@ cat error.log | scrub-ai
 # Sanitize a file
 scrub-ai --file crash.log
 
-# See what would be detected without changing anything
+# See what would be detected without changing the output
 scrub-ai --dry-run --file logs.txt
 
-# Sanitize and copy result to clipboard
+# Sanitize and copy the result to clipboard
 scrub-ai --file logs.txt --copy
-
-# Focus on AWS credentials only (ignore network noise)
-scrub-ai --profile aws --file logs.txt
-
-# Only mask high-confidence detections (0.0-1.0)
-scrub-ai --min-confidence 0.85 --file logs.txt
-
-# Available profiles: aws, k8s, secrets, network
 ```
 
-### PII Detection (optional)
+### Filtering — profiles and confidence
 
-Install with `pip install "scrub-ai[pii]"` and download the spacy model (see Install section above), then emails, phone numbers, and names are automatically detected:
+Use profiles to focus on a specific category and ignore noise from others.
 
 ```bash
-echo "Call John Smith at 555-867-5309" | scrub-ai
-# → Call [PERSON] at [PHONE_NUMBER]
+# Focus on AWS credentials only (ignores IPs, hostnames, etc.)
+scrub-ai --profile aws --file logs.txt
+
+# Focus on Kubernetes-related secrets
+scrub-ai --profile k8s --file logs.txt
+
+# Only mask high-confidence detections (0.0–1.0 scale)
+scrub-ai --min-confidence 0.85 --file logs.txt
+
+# Combine profile and confidence threshold
+scrub-ai --profile secrets --min-confidence 0.90 --file logs.txt
 ```
 
-### Custom Patterns
+Available profiles: `aws`, `k8s`, `secrets`, `network`
 
-Create `~/.config/scrub-ai/patterns.json` (Linux/macOS) or `%APPDATA%\scrub-ai\patterns.json` (Windows):
+Each profile activates only the detectors relevant to that context. For example, `--profile aws` runs only AWS credential and ARN patterns — it will not mask IP addresses or internal hostnames.
+
+### Watch mode — automatic clipboard sanitization
+
+Watch mode monitors your clipboard continuously. Every time you copy something, scrub-ai checks it and masks any sensitive content automatically before you paste.
+
+Works on Windows, Linux, and macOS.
+
+```bash
+scrub-ai --watch
+```
+
+- Starts polling the clipboard every 500ms
+- If sensitive content is detected, the clipboard is silently replaced with the clean version
+- If nothing sensitive is found, the clipboard is left unchanged
+- Press `Ctrl+C` to stop
+
+### Hotkey + system tray (Windows only)
+
+For a manual, on-demand workflow on Windows. Runs as a background service with a system tray icon.
+
+```bash
+scrub-ai --start
+```
+
+- Icon appears in the system tray (bottom right)
+- Copy any text with `Ctrl+C` as normal
+- Press `Ctrl+Alt+S` to sanitize the clipboard
+- Paste the clean text with `Ctrl+V`
+- Right-click the tray icon to toggle the hotkey on/off, or to quit
+
+> `--start` is Windows only. For automatic clipboard sanitization on all platforms, use `--watch` instead.
+
+---
+
+## PII Detection
+
+When installed with `pip install "scrub-ai[pii]"` and the spaCy model is downloaded, scrub-ai automatically detects:
+
+| Type | Example input | Masked as |
+|---|---|---|
+| Person names | `John Smith` | `[PERSON]` |
+| Email addresses | `john@example.com` | `[EMAIL_ADDRESS]` |
+| Phone numbers | `555-867-5309` | `[PHONE_NUMBER]` |
+
+```bash
+echo "Call John Smith at 555-867-5309 or john@example.com" | scrub-ai
+# → Call [PERSON] at [PHONE_NUMBER] or [EMAIL_ADDRESS]
+```
+
+PII detection runs automatically alongside secrets, cloud, and network detection — no extra flags needed.
+
+---
+
+## Custom Patterns
+
+You can add your own regex rules to catch internal identifiers that scrub-ai doesn't know about.
+
+Create the patterns file at:
+- Linux/macOS: `~/.config/scrub-ai/patterns.json`
+- Windows: `%APPDATA%\scrub-ai\patterns.json`
 
 ```json
 [
@@ -114,19 +186,14 @@ Create `~/.config/scrub-ai/patterns.json` (Linux/macOS) or `%APPDATA%\scrub-ai\p
 ]
 ```
 
-Custom patterns are picked up automatically on every run — no restart needed.
+| Field | Required | Description |
+|---|---|---|
+| `pattern` | ✅ | Python regex string |
+| `replacement` | ✅ | What to replace matches with |
+| `label` | ✅ | Name shown in the detection summary |
+| `confidence` | ❌ | Score from 0.0–1.0 (default: 1.0). Used with `--min-confidence` |
 
-### Hotkey Usage (Windows only)
-
-```bash
-# Start scrub-ai in the background
-scrub-ai --start
-
-# Icon appears in system tray (bottom right)
-# Copy any text with Ctrl+C as normal
-# Press Ctrl+Alt+S to sanitize clipboard
-# Paste clean text with Ctrl+V
-```
+Custom patterns are loaded on every run — no restart needed.
 
 ---
 
@@ -170,6 +237,7 @@ Detected 5 sensitive value(s): aws_access_key=1, aws_account_id=1, internal_host
 | Generic secrets | API keys, bearer tokens, JWTs, private keys, hex tokens |
 | Passwords | `password=`, `passwd=`, `pwd=` key-value patterns |
 | Network | IPv4, IPv6, internal hostnames, internal URLs |
+| PII *(optional)* | Person names, email addresses, phone numbers |
 
 ---
 
@@ -178,7 +246,7 @@ Detected 5 sensitive value(s): aws_access_key=1, aws_account_id=1, internal_host
 - [x] Project setup
 - [x] **v1.0** — CLI + secrets + cloud + network detection + Windows hotkey + system tray
 - [x] **v1.1** — PII detection (Presidio) + confidence scoring + profiles + custom patterns
-- [ ] **v1.2** — Watch mode (automatic clipboard monitoring)
+- [x] **v1.2** — Watch mode (automatic clipboard monitoring, all platforms)
 - [ ] **v2.0** — VS Code extension
 - [ ] **v2.1** — Browser extension (warns before pasting into ChatGPT)
 - [ ] **v3.0** — Team policies + audit log
@@ -194,11 +262,17 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 git clone https://github.com/rajwindermarwaha/scrub-ai
 cd scrub-ai
 
-# Install dev dependencies
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate        # Linux/macOS
+.venv\Scripts\activate           # Windows
+
+# Install with dev dependencies
 pip install -e ".[dev]"
 
-# Install with PII support (optional)
+# Optional: also install PII dependencies
 pip install -e ".[pii]"
+python -m spacy download en_core_web_lg
 
 # Run tests
 pytest

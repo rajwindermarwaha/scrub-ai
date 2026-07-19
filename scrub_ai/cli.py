@@ -39,9 +39,10 @@ def _format_report(report: dict[str, object]) -> str:
 @click.option("--dry-run", is_flag=True, help="Show detections but do not modify the output text.")
 @click.option("--copy", "copy_output", is_flag=True, help="Copy output text to clipboard.")
 @click.option("--start", is_flag=True, help="Start background hotkey listener and system tray (Windows only).")
+@click.option("--watch", is_flag=True, help="Automatically sanitize clipboard whenever it changes.")
 @click.option("--profile", type=click.Choice(available_profiles(), case_sensitive=False), default=None, help="Limit detection to a named profile (aws, k8s, secrets, network).")
 @click.option("--min-confidence", type=click.FloatRange(0.0, 1.0), default=0.0, show_default=True, help="Minimum confidence threshold for detections (0.0–1.0).")
-def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool, profile: str | None, min_confidence: float) -> None:
+def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool, watch: bool, profile: str | None, min_confidence: float) -> None:
     """Sanitize sensitive content from text."""
 
     if start:
@@ -50,6 +51,20 @@ def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool, p
         from scrub_ai import tray
         click.echo("scrub-ai running. Press Ctrl+Alt+S to sanitize clipboard. Right-click the tray icon to quit.", err=True)
         tray.start()
+        return
+
+    if watch:
+        from scrub_ai import watcher
+        cfg.set_watch_mode(True)
+        click.echo("Watch mode ON. Clipboard will be sanitized automatically. Press Ctrl+C to stop.", err=True)
+        try:
+            watcher.start()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            watcher.stop()
+            cfg.set_watch_mode(False)
+            click.echo("Watch mode OFF.", err=True)
         return
 
     input_text = _load_input(file_path)

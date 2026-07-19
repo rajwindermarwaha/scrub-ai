@@ -8,18 +8,54 @@ When starting a new session with AI, share this file so it knows exactly where t
 ## ⏩ NEXT SESSION — START HERE
 
 ### What to do first
-1. Activate the virtual environment
 ```bash
 cd ~/scrub-ai
-git checkout feature/v1.2
+git checkout main
 source .venv/bin/activate
 ```
 
 ### Next step
-Step 3 — Update `tray.py`:
-- Add **"Watch: ON/OFF"** toggle to the tray menu
-- Starts/stops the watcher thread when toggled
-- Cross-platform toggle (watch mode works on all platforms)
+v1.2 is complete and merged to `main`. Next work is **v2.0 — VS Code extension**.
+
+---
+
+### Session 12 — 2026-07-04
+
+**What we did:**
+- Updated `scrub_ai/cli.py` — added `--watch` flag:
+  - Sets `cfg.set_watch_mode(True)` before starting
+  - Calls `watcher.start()` (blocks until Ctrl+C)
+  - Cleans up with `watcher.stop()` and `cfg.set_watch_mode(False)` in `finally`
+  - Cross-platform — no platform guard needed
+- Wrote `tests/test_cli_v12.py` — 3 tests:
+  - `test_watch_starts_watcher` — verifies `watcher.start()` is called
+  - `test_watch_sets_and_clears_watch_mode` — verifies config is True during run, False after
+  - `test_watch_prints_start_and_stop_messages` — verifies user-facing messages
+- Updated `README.md` — full rewrite for clarity:
+  - Install section split into standard vs PII tiers with explicit steps
+  - Usage reorganized into 4 sections: Basic, Filtering, Watch mode, Hotkey+tray
+  - PII detection given its own section with input/output table
+  - Custom patterns field reference table added
+  - Watch mode documented (was missing entirely)
+  - Contributing section updated with venv creation steps and spaCy download
+  - Roadmap: marked v1.2 as complete
+- Created `.github/workflows/publish.yml` — manual publish workflow:
+  - Triggered by `workflow_dispatch` with a version input — no accidental publishes
+  - `publish-test` job: builds and uploads to TestPyPI
+  - `publish-pypi` job: runs only after TestPyPI succeeds, gated by `release` environment approval
+  - Both jobs use GitHub Actions secrets (`TEST_PYPI_API_TOKEN`, `PYPI_API_TOKEN`)
+- Added `TEST_PYPI_API_TOKEN` and `PYPI_API_TOKEN` secrets to GitHub repo
+- Created `release` environment in GitHub with required reviewer (owner approval gate)
+
+**Result:** `pytest -q` → `127 passed`
+
+**What was NOT done:**
+- v1.2 not yet published to PyPI (pending merge to main + manual workflow run)
+
+**Blockers:**
+- None
+
+**Status:** 🟢 v1.2 feature-complete. Ready to merge to main and publish.
 
 ---
 
@@ -366,7 +402,11 @@ Step 3 — Update `tray.py`:
 | 25 | New icon design (shield + bolt) + tagline + LinkedIn post | Session 10 | ✅ Done |
 | 26 | Update `config.py` for watch mode | Session 11 | ✅ Done |
 | 27 | Create `watcher.py` | Session 11 | ✅ Done |
-| 28 | Update `tray.py` — watch mode toggle | Session 11 | 🔄 Next |
+| 28 | Update `tray.py` — watch mode toggle | Session 11 | ✅ Done |
+| 29 | Add `--watch` flag to `cli.py` | Session 12 | ✅ Done |
+| 30 | Update `README.md` for v1.2 | Session 12 | ✅ Done |
+| 31 | Create `publish.yml` GitHub Actions workflow | Session 12 | ✅ Done |
+| 32 | Add PyPI secrets to GitHub + release environment | Session 12 | ✅ Done |
 
 ---
 
