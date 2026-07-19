@@ -107,7 +107,20 @@ No extra setup needed. `pyperclip` uses the built-in `pbcopy`/`pbpaste` — clip
 
 ### Windows
 
-No extra setup needed for clipboard access. For the background hotkey + tray service, see [Hotkey + system tray](#hotkey--system-tray-windows-only) below.
+No extra setup needed for clipboard access.
+
+If `scrub-ai` is not recognised as a command after installing, Python's `Scripts` folder is not in your PATH. Fix it once:
+
+1. Search **"Environment Variables"** in the Start menu
+2. Click **"Edit the system environment variables"** → **"Environment Variables"**
+3. Under **User variables**, select **Path** → click **Edit** → click **New**
+4. Add the path to Python's Scripts folder — typically:
+   ```
+   C:\Users\<your-username>\AppData\Local\Programs\Python\Python312\Scripts
+   ```
+5. Click OK, open a **new** terminal, and `scrub-ai` will work
+
+For the background hotkey + tray service, see [Hotkey + system tray](#hotkey--system-tray-windows-only) below.
 
 ---
 
