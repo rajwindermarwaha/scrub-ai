@@ -10,12 +10,46 @@ When starting a new session with AI, share this file so it knows exactly where t
 ### What to do first
 ```bash
 cd ~/scrub-ai
-git checkout main
+git checkout feature/v2.0-vscode-extension
 source .venv/bin/activate
 ```
 
 ### Next step
-v1.2 is complete and merged to `main`. Next work is **v2.0 — VS Code extension**.
+Branch `feature/v2.0-vscode-extension` is created. Docs updated. Next step is **building the VS Code extension** — scaffold `vscode-extension/` folder, create `package.json`, `tsconfig.json`, and `src/extension.ts`.
+
+---
+
+### Session 13 — 2026-07-05
+
+**What we did:**
+- Created `feature/v2.0-vscode-extension` branch and pushed to GitHub
+- Updated `docs/ARCHITECTURE.md`:
+  - Updated overview to mention VS Code extension
+  - Updated project structure to include `vscode-extension/` folder and all current files
+  - Added VS Code extension component section (commands, keybinding, subprocess approach, diff view, error handling)
+  - Added TypeScript + VS Code API to tech stack table
+- Updated `docs/PLAN.md`:
+  - Expanded Phase 4 with full v2.0 VS Code extension details
+  - Added Phase 5 (v2.1 browser extension) and Phase 6 (v3.0 team features)
+  - Updated weekly progress log — all v1.x marked complete, v2.0 marked in progress
+- Updated `docs/DECISIONS.md`:
+  - D009 — VS Code extension calls Python CLI as subprocess (not reimplemented in TypeScript)
+  - D010 — Diff view before applying changes in VS Code extension
+  - D011 — Same repo for VS Code extension (`vscode-extension/` subfolder)
+- Updated `README.md`:
+  - Watch mode section: added platform-specific commands table with correct Windows command (`python -m scrub_ai.cli --watch`)
+  - Install table: updated watch mode row to show Windows command
+
+**Result:** All docs up to date. Branch ready for extension development.
+
+**What was NOT done:**
+- `vscode-extension/` folder not yet created
+- No TypeScript code written yet
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Docs complete. Ready to scaffold the VS Code extension.
 
 ---
 
@@ -407,6 +441,8 @@ v1.2 is complete and merged to `main`. Next work is **v2.0 — VS Code extension
 | 30 | Update `README.md` for v1.2 | Session 12 | ✅ Done |
 | 31 | Create `publish.yml` GitHub Actions workflow | Session 12 | ✅ Done |
 | 32 | Add PyPI secrets to GitHub + release environment | Session 12 | ✅ Done |
+| 33 | Create `feature/v2.0-vscode-extension` branch | Session 13 | ✅ Done |
+| 34 | Update all docs for v2.0 (ARCHITECTURE, PLAN, DECISIONS, PROGRESS, README) | Session 13 | ✅ Done |
 
 ---
 

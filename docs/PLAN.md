@@ -98,10 +98,22 @@ Week 2:
 - Blog post published
 
 ### Phase 4 — V2.0 (Month 3+)
-**Goal:** IDE + browser integration
+**Goal:** VS Code extension
 
-- VS Code extension
+- VS Code extension — sanitize selection or file via command palette / `Ctrl+Alt+S`
+- Calls existing Python CLI as subprocess — no logic duplication
+- Diff view so user reviews changes before accepting
+- Works on Windows, Linux, and macOS
+- Published to VS Code Marketplace
+
+### Phase 5 — V2.1 (Month 4+)
+**Goal:** Browser integration
+
 - Browser extension (warns before pasting into ChatGPT/Claude)
+
+### Phase 6 — V3.0 (Month 5+)
+**Goal:** Team features
+
 - Team policies / audit log
 
 ---
@@ -111,9 +123,10 @@ Week 2:
 | Week | Goal | Status |
 |---|---|---|
 | Week 1 | Project setup + all detectors + CLI | ✅ Complete |
-| Week 2 | Hotkey + tray + tests + PyPI publish | ✅ Complete (publish pending) |
-| Week 3 | PII detection | 🔲 Not started |
-| Week 4 | Watch mode + blog post | 🔲 Not started |
+| Week 2 | Hotkey + tray + tests + PyPI v1.0 publish | ✅ Complete |
+| Week 3 | PII detection + confidence scoring + profiles + custom patterns (v1.1) | ✅ Complete |
+| Week 4 | Watch mode (v1.2) | ✅ Complete |
+| Month 3 | VS Code extension (v2.0) | 🔄 In progress |
 
 ---
 
