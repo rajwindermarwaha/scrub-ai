@@ -185,3 +185,61 @@ The Windows hotkey experience remains the flagship feature but the tool is now u
 
 **Tradeoff accepted:**
 Installs Windows-specific libraries on non-Windows systems. Mitigated by platform checks at runtime.
+
+---
+
+## D009 — VS Code extension calls Python CLI as subprocess
+
+**Decision:** The VS Code extension shells out to `scrub-ai` CLI rather than reimplementing detection logic in TypeScript.
+
+**Options considered:**
+- Reimplement all regex detectors in TypeScript
+- Call the Python CLI as a subprocess
+- Publish a separate Python HTTP server the extension talks to
+
+**Reasoning:**
+- The Python CLI already has 127 passing tests — reimplementing in TypeScript doubles the maintenance burden with no benefit
+- Detection logic stays in one place; any improvement to the CLI automatically benefits the extension
+- Subprocess call is simple and reliable for the text sizes involved (logs, stack traces)
+- A local HTTP server adds unnecessary complexity and startup overhead
+
+**Tradeoff accepted:**
+The extension requires Python and `scrub-ai` to be installed on the user's machine. If not found, the extension shows a clear install prompt. This is acceptable — the target audience (developers) are comfortable with `pip install`.
+
+---
+
+## D010 — Diff view before applying changes in VS Code extension
+
+**Decision:** Show a VS Code diff view so the user reviews sanitized output before it replaces their text.
+
+**Options considered:**
+- Replace text in-place immediately (no confirmation)
+- Show diff view and let user accept/reject
+- Open sanitized output in a new tab
+
+**Reasoning:**
+- In-place replacement with no review is too aggressive for an editor — a false positive would silently corrupt the user's code
+- Diff view is the standard VS Code pattern for refactoring tools (e.g. rename symbol, format document)
+- Users build trust in the tool by seeing exactly what changed before committing to it
+- New tab is less intuitive than a diff for a replace operation
+
+**Tradeoff accepted:**
+Diff view adds one extra step (accept the change). This is intentional — the editor context demands more care than clipboard sanitization.
+
+---
+
+## D011 — Same repo for VS Code extension
+
+**Decision:** `vscode-extension/` lives inside the `scrub-ai` repo, not a separate repo.
+
+**Options considered:**
+- Separate repo (`scrub-ai-vscode`)
+- Subfolder in the same repo (`vscode-extension/`)
+
+**Reasoning:**
+- One repo to maintain, one place to file issues, one README to link to
+- The extension is tightly coupled to the CLI — versioning them together makes sense
+- Separate repo adds overhead (separate CI, separate releases, separate README) for a component that has no independent users
+
+**Tradeoff accepted:**
+The repo mixes Python and TypeScript. This is a minor inconvenience offset by the simplicity of a single repo.

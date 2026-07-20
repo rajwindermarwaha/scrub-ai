@@ -2,7 +2,7 @@
 
 ## Overview
 
-scrub-ai is a cross-platform Python CLI tool and Windows background service that detects and masks sensitive content from any text. The CLI works on Windows, Linux, and macOS. The hotkey and system tray features are Windows-only.
+scrub-ai is a cross-platform Python CLI tool, Windows background service, and VS Code extension that detects and masks sensitive content from any text. The CLI works on Windows, Linux, and macOS. The hotkey and system tray features are Windows-only. The VS Code extension works on all platforms.
 
 ---
 
@@ -44,40 +44,53 @@ scrub-ai is a cross-platform Python CLI tool and Windows background service that
 ```
 scrub-ai/
 │
-├── scrub_ai/                      # main package
+├── scrub_ai/                      # main Python package
 │   ├── __init__.py                # version, public API
 │   ├── cli.py                     # click CLI entry point
 │   ├── sanitizer.py               # core — wires all detectors together
-│   ├── hotkey.py                  # Ctrl+Shift+S global hotkey listener
+│   ├── hotkey.py                  # Ctrl+Alt+S global hotkey listener (Windows)
 │   ├── tray.py                    # Windows system tray icon + menu
 │   ├── notifier.py                # Windows toast notifications
 │   ├── config.py                  # loads/saves config from AppData
+│   ├── watcher.py                 # clipboard watch mode (all platforms)
 │   │
 │   └── detectors/
 │       ├── __init__.py
 │       ├── base.py                # base class all detectors inherit from
 │       ├── secrets.py             # API keys, tokens, passwords, JWTs
 │       ├── cloud.py               # AWS / GCP / Azure specific patterns
-│       └── network.py             # IPs, hostnames, internal URLs
+│       ├── network.py             # IPs, hostnames, internal URLs
+│       ├── pii.py                 # PII via Presidio (optional)
+│       └── custom.py              # user-defined regex patterns
+│
+├── vscode-extension/              # VS Code extension (v2.0)
+│   ├── src/
+│   │   └── extension.ts           # extension entry point
+│   ├── package.json               # extension manifest
+│   └── tsconfig.json
 │
 ├── tests/
 │   ├── test_sanitizer.py
 │   ├── test_secrets_detector.py
 │   ├── test_cloud_detector.py
 │   ├── test_network_detector.py
-│   └── fixtures/
-│       ├── sample_stacktrace.txt
-│       ├── sample_logs.txt
-│       ├── sample_aws_output.txt
-│       └── sample_code.py
+│   ├── test_pii_detector.py
+│   ├── test_custom_detector.py
+│   ├── test_profiles.py
+│   ├── test_watcher.py
+│   ├── test_config.py
+│   ├── test_hotkey.py
+│   ├── test_tray.py
+│   └── test_notifier.py
 │
 ├── assets/
-│   └── icon.png                   # system tray icon (16x16, 32x32)
+│   └── icon.png                   # system tray icon
 │
 ├── docs/
 │   ├── PLAN.md
 │   ├── ARCHITECTURE.md
-│   └── DECISIONS.md
+│   ├── DECISIONS.md
+│   └── DEVLOG.md
 │
 ├── pyproject.toml
 ├── README.md
@@ -85,7 +98,8 @@ scrub-ai/
 ├── LICENSE
 └── .github/
     └── workflows/
-        └── ci.yml
+        ├── ci.yml
+        └── publish.yml
 ```
 
 ---
@@ -129,6 +143,28 @@ Built with `click`. Handles:
 - `--dry-run` flag
 - `--copy` flag (copy result to clipboard)
 - `--start` flag (launch background hotkey daemon)
+- `--watch` flag (clipboard watch mode, all platforms)
+
+
+### 7. `vscode-extension/` — VS Code Extension
+
+Built with TypeScript using the VS Code Extension API. Calls the Python CLI (`scrub-ai`) as a subprocess.
+
+**Commands exposed:**
+| Command | Action |
+|---|---|
+| `Scrub AI: Sanitize Selection` | Sanitizes the selected text and replaces it in-place via a diff view |
+| `Scrub AI: Sanitize File` | Sanitizes the entire active file via a diff view |
+
+**Keybinding:** `Ctrl+Alt+S` — consistent with the Windows hotkey.
+
+**How it calls the CLI:**
+```
+scrub-ai --file <temp_file>
+```
+Output is shown in a diff view so the user can review and accept changes before anything is modified.
+
+**Error handling:** If `scrub-ai` is not installed or not on PATH, the extension shows a clear install prompt linking to the README.
 
 ### 4. `hotkey.py` — Global Hotkey
 
@@ -185,6 +221,7 @@ Priority 4 — PII         (emails, phones — v1.1)
 | Tests | pytest | 7.x | All |
 | Packaging | pyproject.toml + PyPI | — | All |
 | CI | GitHub Actions | — | All |
+| VS Code extension | TypeScript + VS Code API | — | All |
 
 ---
 

@@ -544,3 +544,19 @@ Examples of hardening:
 **Why `workflow_dispatch` instead of tag push:** Publish should be a deliberate action, not a side effect of pushing a tag. This gives full control over when a release goes out.
 
 **Why TestPyPI first:** Catches packaging mistakes (missing files, bad metadata, import errors) before spending the real version number on PyPI.
+
+## Step 37 — Created `feature/v2.0-vscode-extension` branch + updated all docs
+
+**What:**
+- Created and pushed `feature/v2.0-vscode-extension` branch
+- Updated `docs/ARCHITECTURE.md` — added VS Code extension to overview, project structure, component descriptions, and tech stack table
+- Updated `docs/PLAN.md` — expanded Phase 4 with v2.0 details, added Phase 5 (browser extension) and Phase 6 (team features), updated progress log
+- Updated `docs/DECISIONS.md` — added D009 (subprocess over TypeScript rewrite), D010 (diff view before applying changes), D011 (same repo)
+- Updated `README.md` — fixed watch mode section with correct Windows command (`python -m scrub_ai.cli --watch`) in both the prerequisites table and the install table
+
+**Why document before coding:** Architecture and decision docs written before implementation prevent wasted effort and make the reasoning behind every choice traceable. Same principle applied here as in Session 1.
+
+**Key decisions recorded:**
+- Extension calls Python CLI as subprocess — no logic duplication, 127 tests already cover detection
+- Diff view before applying changes — editor context demands more care than clipboard sanitization
+- Same repo (`vscode-extension/` subfolder) — one place to maintain, version, and file issues
