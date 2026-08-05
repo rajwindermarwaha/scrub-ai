@@ -20,11 +20,22 @@ interface CliMatch {
 }
 
 function findCli(): { cmd: string; args: string[] } | null {
-    if (spawnSync('python', ['-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
-        return { cmd: 'python', args: ['-m', 'scrub_ai.cli'] };
+    // Common venv locations to probe
+    const venvCandidates = [
+        `${process.env.HOME}/.venv/bin/python3`,
+        `${process.env.HOME}/scrub-ai/.venv/bin/python3`,
+        `${process.env.HOME}/.local/bin/python3`,
+    ];
+    for (const p of venvCandidates) {
+        if (spawnSync(p, ['-m', 'scrub_ai.cli', '--help'], { shell: false }).status === 0) {
+            return { cmd: p, args: ['-m', 'scrub_ai.cli'] };
+        }
     }
     if (spawnSync('python3', ['-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
         return { cmd: 'python3', args: ['-m', 'scrub_ai.cli'] };
+    }
+    if (spawnSync('python', ['-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
+        return { cmd: 'python', args: ['-m', 'scrub_ai.cli'] };
     }
     if (process.platform === 'win32' &&
         spawnSync('wsl', ['python3', '-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
