@@ -772,3 +772,16 @@ Examples of hardening:
 **Live at:** https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai
 
 **Why upload via web UI instead of `vsce publish`:** `vsce publish` requires a PAT from Azure DevOps. The Azure AD tenant linked to the original Microsoft account was blocked due to inactivity. A new Microsoft account (Gmail-linked) was created, which only had access to the Marketplace web UI — sufficient for the initial upload. Future updates can use `vsce publish` once a PAT is generated from the new account's Azure DevOps org.
+
+---
+
+## Step 47 — Bumped CLI version to 2.0.0 + published to PyPI
+
+**What:**
+- Updated `version` in `pyproject.toml` from `1.2.0` → `2.0.0`
+- Updated `README.md`: added VS Code Marketplace badge next to PyPI badge, added full "VS Code Extension" section (install steps, feature list, command table), marked v2.0 as `[x]` in roadmap
+- Triggered `publish.yml` GitHub Actions workflow — built and uploaded to TestPyPI, then PyPI after approval
+
+**Live at:** https://pypi.org/project/scrub-ai/2.0.0/
+
+**Why 2.0.0:** The VS Code extension is a major new surface area — not a patch or minor CLI change. Aligning the PyPI version with the v2.0 milestone makes the changelog and roadmap consistent across both distribution channels.
