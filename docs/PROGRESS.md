@@ -12,10 +12,87 @@ When starting a new session with AI, share this file so it knows exactly where t
 cd ~/scrub-ai
 git checkout feature/v2.0-vscode-extension
 source .venv/bin/activate
+export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh" && nvm use 20
 ```
 
 ### Next step
-Branch `feature/v2.0-vscode-extension` is created. Docs updated. Next step is **building the VS Code extension** — scaffold `vscode-extension/` folder, create `package.json`, `tsconfig.json`, and `src/extension.ts`.
+VS Code extension is feature-complete and tested locally. Next step is **publishing to the VS Code Marketplace**:
+1. Create a publisher account at https://marketplace.visualstudio.com/manage
+2. Generate a Personal Access Token (PAT) in Azure DevOps
+3. Install `vsce`: `npm install -g @vscode/vsce`
+4. Run `vsce publish` inside `vscode-extension/scrub-ai/`
+
+---
+
+### Session 16 — 2026-07-05
+
+**What we did:**
+- Added clipboard watch mode to VS Code extension:
+  - `startWatcher()` spawns `python -m scrub_ai.cli --watch` as a background subprocess on extension activation
+  - Watcher process is killed cleanly on extension deactivation via `context.subscriptions.push({ dispose })`
+  - Automatically sanitizes clipboard whenever content is copied — no manual action needed
+- Tested end-to-end — clipboard watch mode working inside VS Code
+- Committed and pushed to `feature/v2.0-vscode-extension`
+
+**Result:** Extension now sanitizes clipboard automatically on copy + supports manual sanitize via Ctrl+Alt+S.
+
+**What was NOT done:**
+- Not yet published to VS Code Marketplace
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Extension fully feature-complete. Ready to publish to Marketplace.
+
+---
+
+**What we did:**
+- Scaffolded VS Code extension using `yo code` inside `vscode-extension/` (TypeScript, no bundler)
+- Wired `package.json`:
+  - Publisher: `rajwindermarwaha`
+  - Two commands: `scrub-ai.sanitize` (Ctrl+Alt+S) and `scrub-ai.sanitizeFile`
+  - `activationEvents: ["onStartupFinished"]`
+  - Engine version lowered to `^1.113.0` to match installed VS Code
+  - Icon: `icon.png`
+- Implemented `src/extension.ts`:
+  - `findCli()` — tries `python -m scrub_ai.cli` (Windows), then `python3 -m scrub_ai.cli`, then WSL fallback
+  - `ensureCli()` — auto-installs via `pip install scrub-ai` if not found, with progress notification
+  - `runScrubAi()` — spawns CLI as subprocess, pipes text via stdin, returns sanitized stdout
+  - `sanitizeText()` — shows diff view (`vscode.diff`) or direct apply prompt; applies changes to editor
+  - Keybinding `Ctrl+Alt+S` triggers `scrub-ai.sanitize`
+- Updated `.vscodeignore` — added `node_modules/**`
+- Copied `assets/icon.png` into `vscode-extension/scrub-ai/icon.png`
+- Tested end-to-end in Extension Development Host — sanitization, diff view, and apply all working
+- Committed to `feature/v2.0-vscode-extension`
+
+**Result:** Extension working locally. Sanitizes file/selection, shows diff, applies on confirm.
+
+**What was NOT done:**
+- Not yet published to VS Code Marketplace
+- Marketplace publisher account not yet created
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Extension feature-complete. Ready to publish to Marketplace.
+
+---
+
+**What we did:**
+- Confirmed Node 18 (via apt) was too old for `generator-code` (requires Node >=20)
+- Installed Node 20.20.2 via nvm
+- Installed `yo` and `generator-code` globally via npm (`npm install -g yo generator-code`)
+- 638 packages installed, npm 10.8.2
+
+**Result:** Node 20.20.2 + yo + generator-code ready. Extension scaffold not yet run.
+
+**What was NOT done:**
+- `yo code` not yet run — extension skeleton not yet created
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Node environment ready. Ready to scaffold the VS Code extension.
 
 ---
 
@@ -443,19 +520,11 @@ Branch `feature/v2.0-vscode-extension` is created. Docs updated. Next step is **
 | 32 | Add PyPI secrets to GitHub + release environment | Session 12 | ✅ Done |
 | 33 | Create `feature/v2.0-vscode-extension` branch | Session 13 | ✅ Done |
 | 34 | Update all docs for v2.0 (ARCHITECTURE, PLAN, DECISIONS, PROGRESS, README) | Session 13 | ✅ Done |
+| 35 | Install Node 20 via nvm + yo + generator-code globally | Session 14 | ✅ Done |
+| 36 | Scaffold VS Code extension (`yo code`) + implement extension.ts | Session 15 | ✅ Done |
+| 37 | Test extension end-to-end in Extension Development Host | Session 15 | ✅ Done |
+| 38 | Add clipboard watch mode to VS Code extension | Session 16 | ✅ Done |
 
 ---
 
-## How to Resume With AI
 
-At the start of every new chat, paste this exactly:
-
-```
-I am building scrub-ai, an open source Python CLI tool that sanitizes 
-sensitive content before sharing with AI assistants.
-
-Repo: https://github.com/rajwindermarwaha/scrub-ai
-Progress: https://github.com/rajwindermarwaha/scrub-ai/blob/main/docs/PROGRESS.md
-
-Please read my PROGRESS.md and pick up from where I left off.
-```

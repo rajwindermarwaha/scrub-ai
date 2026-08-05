@@ -560,3 +560,54 @@ Examples of hardening:
 - Extension calls Python CLI as subprocess — no logic duplication, 127 tests already cover detection
 - Diff view before applying changes — editor context demands more care than clipboard sanitization
 - Same repo (`vscode-extension/` subfolder) — one place to maintain, version, and file issues
+
+## Step 38 — Installed Node 20 + yo + generator-code
+
+**What:**
+- Node 18 (installed via apt) was rejected by `generator-code` — requires Node >=20
+- Installed Node 20.20.2 via nvm: `nvm install 20 && nvm use 20`
+- Installed scaffolding tools globally: `npm install -g yo generator-code`
+- 638 packages installed, npm 10.8.2
+
+**Why:** `yo` + `generator-code` is the official VS Code extension scaffolding tool. It generates the correct `package.json` structure, `tsconfig.json`, activation events, and `src/extension.ts` boilerplate that the VS Code Marketplace build pipeline expects. Doing this manually would risk missing required fields.
+
+**Next:** Run `yo code` inside `vscode-extension/` to generate the extension skeleton.
+
+## Step 39 — Scaffolded and implemented VS Code extension
+
+**What:**
+- Ran `yo code` inside `vscode-extension/` — generated TypeScript extension skeleton (no bundler)
+- Wired `package.json`:
+  - Publisher: `rajwindermarwaha`
+  - Commands: `scrub-ai.sanitize` ("Scrub AI: Sanitize Selection") and `scrub-ai.sanitizeFile` ("Scrub AI: Sanitize File")
+  - Keybinding: `Ctrl+Alt+S` → `scrub-ai.sanitize` (when `editorTextFocus`)
+  - `activationEvents: ["onStartupFinished"]` — extension activates on startup
+  - Engine: `^1.113.0` — lowered from scaffolded `^1.125.0` to match installed VS Code
+  - Icon: `icon.png` (copied from `assets/icon.png`)
+- Implemented `src/extension.ts`:
+  - `findCli()` — tries `python -m scrub_ai.cli`, then `python3 -m scrub_ai.cli`, then `wsl python3 -m scrub_ai.cli`; returns null if none found
+  - `ensureCli()` — calls `findCli()`; if null, prompts user to install; runs `pip install scrub-ai` with a progress notification; re-checks after install
+  - `runScrubAi()` — spawns CLI as subprocess via `spawn()`, writes input to stdin, collects stdout
+  - `sanitizeText()` — compares original vs sanitized; if different, offers "Show Diff / Apply / Cancel"; diff view uses `vscode.diff` with two in-memory documents; applies to selection or full document
+- Updated `.vscodeignore` — added `node_modules/**`
+
+**Why subprocess over TypeScript rewrite:** The Python CLI already has 127 passing tests covering all detection logic. Calling it as a subprocess means zero logic duplication and the extension automatically benefits from future CLI improvements (new detectors, profiles, custom patterns).
+
+**Why `python -m scrub_ai.cli` over `scrub-ai`:** The `scrub-ai` entry point lives in Python's `Scripts/` folder which is often not on PATH on Windows. `python -m scrub_ai.cli` works as long as Python itself is on PATH, which is always true after a standard Python install.
+
+**Why diff view:** Editors are higher-stakes than clipboard. Showing a diff before applying gives the user confidence that only sensitive content was changed and nothing else was altered.
+
+**Result:** Extension tested end-to-end in Extension Development Host — sanitization, diff view, and apply all working correctly.
+
+## Step 40 — Added clipboard watch mode to VS Code extension
+
+**What:** Added automatic clipboard sanitization to the VS Code extension on activation.
+
+- `startWatcher()` spawns `python -m scrub_ai.cli --watch` (or `python3`/WSL fallback) as a background subprocess when the extension activates
+- The watcher process polls the clipboard every 500ms and sanitizes automatically when sensitive content is detected — same behaviour as `scrub-ai --watch` in the terminal
+- Process is killed cleanly when the extension deactivates via `context.subscriptions.push({ dispose: () => watcherProcess.kill() })`
+- If CLI is not found, `startWatcher()` fails silently — manual commands (`Ctrl+Alt+S`) still work
+
+**Why:** The VS Code extension should provide the same zero-friction experience as the standalone watch mode. Users shouldn't need to remember to press a hotkey — sensitive content should be masked the moment it hits the clipboard.
+
+**Why subprocess over VS Code clipboard API:** VS Code's clipboard API (`vscode.env.clipboard`) only reads/writes on demand — it has no change event. The Python watcher already implements reliable cross-platform polling. Reusing it via subprocess is consistent with D009 (no logic duplication in TypeScript).
