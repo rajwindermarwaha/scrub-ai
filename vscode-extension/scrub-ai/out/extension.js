@@ -125,6 +125,28 @@ async function sanitizeText(original) {
     vscode.window.showInformationMessage('scrub-ai: sensitive content masked.');
 }
 function activate(context) {
+    let watcherProcess = null;
+    async function startWatcher() {
+        try {
+            const cli = await ensureCli();
+            const args = [...cli.args, '--watch'];
+            watcherProcess = (0, child_process_1.spawn)(cli.cmd, args, { shell: true });
+            watcherProcess.on('error', () => { watcherProcess = null; });
+            watcherProcess.on('close', () => { watcherProcess = null; });
+        }
+        catch {
+            // CLI not available — watcher won't run, manual commands still work
+        }
+    }
+    startWatcher();
+    context.subscriptions.push({
+        dispose: () => {
+            if (watcherProcess) {
+                watcherProcess.kill();
+                watcherProcess = null;
+            }
+        }
+    });
     context.subscriptions.push(vscode.commands.registerCommand('scrub-ai.sanitize', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {

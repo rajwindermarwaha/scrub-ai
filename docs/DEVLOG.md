@@ -598,3 +598,16 @@ Examples of hardening:
 **Why diff view:** Editors are higher-stakes than clipboard. Showing a diff before applying gives the user confidence that only sensitive content was changed and nothing else was altered.
 
 **Result:** Extension tested end-to-end in Extension Development Host — sanitization, diff view, and apply all working correctly.
+
+## Step 40 — Added clipboard watch mode to VS Code extension
+
+**What:** Added automatic clipboard sanitization to the VS Code extension on activation.
+
+- `startWatcher()` spawns `python -m scrub_ai.cli --watch` (or `python3`/WSL fallback) as a background subprocess when the extension activates
+- The watcher process polls the clipboard every 500ms and sanitizes automatically when sensitive content is detected — same behaviour as `scrub-ai --watch` in the terminal
+- Process is killed cleanly when the extension deactivates via `context.subscriptions.push({ dispose: () => watcherProcess.kill() })`
+- If CLI is not found, `startWatcher()` fails silently — manual commands (`Ctrl+Alt+S`) still work
+
+**Why:** The VS Code extension should provide the same zero-friction experience as the standalone watch mode. Users shouldn't need to remember to press a hotkey — sensitive content should be masked the moment it hits the clipboard.
+
+**Why subprocess over VS Code clipboard API:** VS Code's clipboard API (`vscode.env.clipboard`) only reads/writes on demand — it has no change event. The Python watcher already implements reliable cross-platform polling. Reusing it via subprocess is consistent with D009 (no logic duplication in TypeScript).

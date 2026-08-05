@@ -24,7 +24,27 @@ VS Code extension is feature-complete and tested locally. Next step is **publish
 
 ---
 
-### Session 15 — 2026-07-05
+### Session 16 — 2026-07-05
+
+**What we did:**
+- Added clipboard watch mode to VS Code extension:
+  - `startWatcher()` spawns `python -m scrub_ai.cli --watch` as a background subprocess on extension activation
+  - Watcher process is killed cleanly on extension deactivation via `context.subscriptions.push({ dispose })`
+  - Automatically sanitizes clipboard whenever content is copied — no manual action needed
+- Tested end-to-end — clipboard watch mode working inside VS Code
+- Committed and pushed to `feature/v2.0-vscode-extension`
+
+**Result:** Extension now sanitizes clipboard automatically on copy + supports manual sanitize via Ctrl+Alt+S.
+
+**What was NOT done:**
+- Not yet published to VS Code Marketplace
+
+**Blockers:**
+- None
+
+**Status:** 🟡 Extension fully feature-complete. Ready to publish to Marketplace.
+
+---
 
 **What we did:**
 - Scaffolded VS Code extension using `yo code` inside `vscode-extension/` (TypeScript, no bundler)
@@ -503,6 +523,7 @@ VS Code extension is feature-complete and tested locally. Next step is **publish
 | 35 | Install Node 20 via nvm + yo + generator-code globally | Session 14 | ✅ Done |
 | 36 | Scaffold VS Code extension (`yo code`) + implement extension.ts | Session 15 | ✅ Done |
 | 37 | Test extension end-to-end in Extension Development Host | Session 15 | ✅ Done |
+| 38 | Add clipboard watch mode to VS Code extension | Session 16 | ✅ Done |
 
 ---
 
