@@ -8,7 +8,9 @@ function findCli(): { cmd: string; args: string[] } | null {
     if (spawnSync('python3', ['-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
         return { cmd: 'python3', args: ['-m', 'scrub_ai.cli'] };
     }
-    if (spawnSync('wsl', ['python3', '-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
+    // WSL fallback — Windows only
+    if (process.platform === 'win32' &&
+        spawnSync('wsl', ['python3', '-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
         return { cmd: 'wsl', args: ['python3', '-m', 'scrub_ai.cli'] };
     }
     return null;
@@ -26,17 +28,38 @@ async function ensureCli(): Promise<{ cmd: string; args: string[] }> {
         throw new Error('scrub-ai not installed.');
     }
 
+    // Try pip then pip3
+    const pipCmd = spawnSync('pip', ['--version'], { shell: true }).status === 0 ? 'pip' : 'pip3';
     await vscode.window.withProgress(
         { location: vscode.ProgressLocation.Notification, title: 'Installing scrub-ai...', cancellable: false },
         () => new Promise<void>((resolve, reject) => {
-            const proc = spawn('pip', ['install', 'scrub-ai'], { shell: true });
-            proc.on('close', code => code === 0 ? resolve() : reject(new Error('pip install failed')));
+            const proc = spawn(pipCmd, ['install', 'scrub-ai'], { shell: true });
+            proc.on('close', code => code === 0 ? resolve() : reject(new Error(`${pipCmd} install failed`)));
         })
     );
 
     const after = findCli();
     if (!after) { throw new Error('scrub-ai installed but not found on PATH. Please restart VS Code.'); }
     return after;
+}
+
+async function ensureXclip(): Promise<void> {
+    if (process.platform !== 'linux') { return; }
+    if (spawnSync('xclip', ['-version'], { shell: true }).status === 0) { return; }
+
+    const choice = await vscode.window.showInformationMessage(
+        'scrub-ai watch mode needs xclip for clipboard access on Linux. Install it now?',
+        'Install', 'Skip'
+    );
+    if (choice !== 'Install') { return; }
+
+    await vscode.window.withProgress(
+        { location: vscode.ProgressLocation.Notification, title: 'Installing xclip...', cancellable: false },
+        () => new Promise<void>((resolve, reject) => {
+            const proc = spawn('sudo', ['apt-get', 'install', '-y', 'xclip'], { shell: true });
+            proc.on('close', code => code === 0 ? resolve() : reject(new Error('xclip install failed')));
+        })
+    );
 }
 
 function runScrubAi(input: string, cli: { cmd: string; args: string[] }): Promise<string> {
@@ -110,6 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
     async function startWatcher() {
         try {
             const cli = await ensureCli();
+            await ensureXclip();
             const args = [...cli.args, '--watch'];
             watcherProcess = spawn(cli.cmd, args, { shell: true });
             watcherProcess.on('error', () => { watcherProcess = null; });
