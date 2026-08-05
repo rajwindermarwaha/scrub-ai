@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
 import click
 import pyperclip
 
+from scrub_ai.sanitizer import Sanitizer
 from scrub_ai.sanitizer import sanitize_text
 from scrub_ai import config as cfg
 from scrub_ai.profiles import available_profiles, get_detectors_for_profile
@@ -42,7 +44,8 @@ def _format_report(report: dict[str, object]) -> str:
 @click.option("--watch", is_flag=True, help="Automatically sanitize clipboard whenever it changes.")
 @click.option("--profile", type=click.Choice(available_profiles(), case_sensitive=False), default=None, help="Limit detection to a named profile (aws, k8s, secrets, network).")
 @click.option("--min-confidence", type=click.FloatRange(0.0, 1.0), default=0.0, show_default=True, help="Minimum confidence threshold for detections (0.0–1.0).")
-def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool, watch: bool, profile: str | None, min_confidence: float) -> None:
+@click.option("--json", "output_json", is_flag=True, help="Output match positions as JSON to stderr (for editor integrations).")
+def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool, watch: bool, profile: str | None, min_confidence: float, output_json: bool) -> None:
     """Sanitize sensitive content from text."""
 
     if start:
@@ -69,6 +72,18 @@ def main(file_path: str | None, dry_run: bool, copy_output: bool, start: bool, w
 
     input_text = _load_input(file_path)
     detectors = get_detectors_for_profile(profile) if profile else None
+
+    if output_json:
+        result = Sanitizer(detectors=detectors).sanitize(input_text, min_confidence=min_confidence)
+        matches = [
+            {"start": m.start, "end": m.end, "original": m.original,
+             "replacement": m.replacement, "label": m.label, "confidence": m.confidence}
+            for m in result.matches
+        ]
+        click.echo(json.dumps(matches), err=True)
+        sys.stdout.write(input_text if dry_run else result.clean_text)
+        return
+
     clean_text, report = sanitize_text(input_text, detectors=detectors, min_confidence=min_confidence)
 
     output_text = input_text if dry_run else clean_text

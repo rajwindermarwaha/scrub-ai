@@ -375,6 +375,69 @@ Examples of hardening:
 
 **Why:** The README is the PyPI project page. Everything on it should be accurate for what ships in v1 — listing features that don't exist yet damages credibility.
 
+## Step 27 — Added confidence scoring to all detectors
+
+**What:** Added a `confidence: float` field to the `Match` dataclass and assigned a score to every pattern across `secrets.py`, `cloud.py`, and `network.py`.
+
+**Score rationale:**
+- Structural patterns with fixed prefixes (AWS access keys `AKIA*`, GCP keys `AIza*`, JWTs `eyJ*`) → `0.99` — near-zero false-positive rate
+- Named key=value context patterns (password=, api_key=, aws_secret_access_key=) → `0.95`
+- Heuristic patterns (hex tokens, internal hostnames) → `0.75–0.85` — higher false-positive risk
+
+**CLI flag added:** `--min-confidence FLOAT` — filters out any match below the threshold before replacement. Default `0.0` (all matches pass through).
+
+**Why:** Not all detections are equally reliable. A hex token match on a log line is much noisier than an `AKIA`-prefixed AWS key. Confidence scoring lets users tune the signal-to-noise ratio without disabling entire detectors.
+
+---
+
+## Step 28 — Created `detectors/custom.py` — user-defined patterns
+
+**What:** Implemented `CustomDetector` which loads patterns from a JSON file at runtime:
+- Linux/macOS: `~/.config/scrub-ai/patterns.json`
+- Windows: `%APPDATA%\scrub-ai\patterns.json`
+
+**JSON schema per entry:** `pattern` (regex), `replacement`, `label`, `confidence` (optional, default 1.0)
+
+**Behaviour:** File is read on every `detect()` call — no restart needed after editing. Invalid JSON or missing file is silently ignored.
+
+**Why:** scrub-ai cannot know every internal identifier (ticket IDs, internal service names, employee IDs). Custom patterns let teams extend detection without forking the package or waiting for a release.
+
+---
+
+## Step 29 — Created `detectors/pii.py` — PII detection via Presidio
+
+**What:** Implemented `PiiDetector` using Microsoft Presidio Analyzer with spaCy `en_core_web_lg`.
+
+**Entities detected:** `PERSON`, `EMAIL_ADDRESS`, `PHONE_NUMBER`
+
+**Behaviour:**
+- If `presidio-analyzer` or `spacy` is not installed, `PiiDetector` is a no-op — no import error, no crash
+- If the spaCy model is missing, Presidio raises on init — caught and suppressed
+- Presidio results are converted to `Match` objects with character offsets
+
+**Why optional:** The spaCy `en_core_web_lg` model is ~400 MB. Making it a hard dependency would make `pip install scrub-ai` unacceptably slow for users who only need secrets/cloud/network detection. The `[pii]` extras group keeps it opt-in.
+
+**Why Presidio over regex for PII:** Names cannot be reliably detected with regex. Presidio uses NER (Named Entity Recognition) via spaCy, which understands linguistic context. "John Smith" is a name; "Smith & Wesson" is a brand. Regex cannot distinguish these.
+
+---
+
+## Step 30 — Created `profiles.py` — named detector profiles
+
+**What:** Implemented a profile registry that maps profile names to detector subsets:
+
+| Profile | Detectors active |
+|---|---|
+| `aws` | `CloudDetector` (AWS patterns only) |
+| `k8s` | `SecretsDetector`, `NetworkDetector` |
+| `secrets` | `SecretsDetector`, `CustomDetector`, `PiiDetector` |
+| `network` | `NetworkDetector` |
+
+**CLI flag added:** `--profile NAME` — activates only the detectors for that profile. Without `--profile`, all detectors run.
+
+**Why:** A DevOps engineer debugging a Kubernetes issue doesn't want IP addresses masked in every log line — they want secrets masked. A developer reviewing AWS CLI output doesn't want phone numbers flagged. Profiles reduce noise by scoping detection to what's relevant for the task.
+
+---
+
 ## Step 28 — Published to PyPI
 
 **What:**
@@ -611,3 +674,101 @@ Examples of hardening:
 **Why:** The VS Code extension should provide the same zero-friction experience as the standalone watch mode. Users shouldn't need to remember to press a hotkey — sensitive content should be masked the moment it hits the clipboard.
 
 **Why subprocess over VS Code clipboard API:** VS Code's clipboard API (`vscode.env.clipboard`) only reads/writes on demand — it has no change event. The Python watcher already implements reliable cross-platform polling. Reusing it via subprocess is consistent with D009 (no logic duplication in TypeScript).
+
+---
+
+## Step 41 — Added `--json` flag to `cli.py` for editor integration
+
+**What:** Added a `--json` boolean flag to the `main()` click command.
+
+**Behaviour:**
+- Runs detection in dry-run mode (output text is unchanged)
+- Writes all matches as a JSON array to stderr, one object per match:
+  ```json
+  [{"start": 12, "end": 47, "original": "...", "replacement": "[REDACTED]", "label": "password", "confidence": 0.95}]
+  ```
+- Fields: `start`, `end` (character offsets), `original`, `replacement`, `label`, `confidence`
+
+**Why:** The VS Code extension needs exact character positions to create `DiagnosticCollection` entries (squiggly underlines in the editor). The existing stderr summary only gives label counts — not positions. `--json` exposes the raw `Match` objects so the extension can map them directly to `vscode.Range` values without any parsing heuristics.
+
+**Why stderr:** stdout carries the sanitized text (used by pipe consumers). Mixing JSON into stdout would break all existing pipe usage. stderr is the correct channel for structured metadata.
+
+---
+
+## Step 42 — Added diagnostics + inline quick-fix to VS Code extension
+
+**What:** Two major features added to `src/extension.ts`:
+
+**Auto-scan diagnostics:**
+- `scanDocument()` runs `scrub-ai --dry-run --json` on the active document's text
+- Parses the JSON match array from stderr
+- Creates a `vscode.DiagnosticCollection` entry for each match using the `start`/`end` character offsets
+- Triggered on `onDidOpenTextDocument` and `onDidSaveTextDocument`
+- Skips files >500 KB and ignored directories (`node_modules`, `.git`, `dist`, `build`, `.venv`, `__pycache__`)
+- Scans 22 text-like file extensions (`.py`, `.ts`, `.js`, `.json`, `.yaml`, `.env`, `.log`, etc.)
+- Result: yellow squiggly underlines + Problems panel entries for every detected sensitive value
+
+**Inline quick-fix code actions:**
+- `ScrubAiCodeActionProvider` registered for all file types
+- 💡 lightbulb appears on every line that has a diagnostic
+- "Mask [label] → [replacement]" applies the single fix in-place with one click
+- "Mask all sensitive values in file" appears when multiple detections exist on the same line
+
+**Why diagnostics:** Clipboard sanitization is reactive — it only fires after you copy. Diagnostics are proactive — they flag sensitive content the moment you open or save a file, before you ever copy anything. This is a fundamentally different (and more useful) UX for editor users.
+
+**Why code actions over a command:** Code actions appear inline at the exact location of the problem. The user doesn't need to remember a command name or navigate to the Problems panel — the fix is one click away at the cursor.
+
+---
+
+## Step 43 — Fixed cross-platform CLI detection + added status bar indicator
+
+**What:** Two changes to `src/extension.ts`:
+
+**`findCli()` rewrite — platform-aware probing:**
+- Windows (extension host on Windows): probes `wsl.exe python3 -m scrub_ai.cli` with venv paths, then `wsl python3 -m scrub_ai.cli`
+- Linux/WSL (extension host inside WSL): probes venv paths directly (`~/.venv/bin/python3`, `~/scrub-ai/.venv/bin/python3`), then `python3`, then `python`
+- macOS: same probe order as Linux
+- All `spawn()` calls changed to `shell: false` for reliability across environments
+- Replaced auto-install prompt with a clear error message — pip install must run in the correct environment and cannot be automated safely from the extension host
+
+**Status bar indicator:**
+- `$(shield) scrub-ai` shown in the bottom-right status bar when CLI is found
+- `$(warning) scrub-ai` with warning background colour when CLI is not found
+- Tooltip shows which Python binary is being used (e.g. `python3 -m scrub_ai.cli`)
+- Updates on every `findCli()` call
+
+**Why rewrite `findCli()`:** The original implementation used a single probe order that worked in WSL but failed when the extension host ran on Windows (common when VS Code is installed natively on Windows with WSL as the backend). The new implementation branches on `process.platform` and `os.arch()` to handle all three real-world configurations.
+
+**Why status bar:** Users had no way to know whether the extension had found the CLI or was silently doing nothing. The status bar gives immediate, persistent feedback without being intrusive.
+
+---
+
+## Step 44 — Bumped extension to v1.0.0 + added Marketplace metadata
+
+**What:** Updated `vscode-extension/scrub-ai/package.json`:
+- Version bumped to `1.0.0`
+- Added `keywords`: `["security", "secrets", "sanitize", "privacy", "AI", "clipboard"]`
+- Added `repository`: points to the GitHub repo
+- Added `homepage`: GitHub repo URL
+- Added `bugs`: GitHub issues URL
+- Compiled TypeScript successfully
+- Committed and pushed to `feature/v2.0-vscode-extension`
+
+**Why:** The VS Code Marketplace uses `keywords` for search ranking and `repository`/`homepage`/`bugs` for the sidebar links on the extension page. Without these, the extension is harder to discover and looks incomplete on the Marketplace listing.
+
+---
+
+## Step 46 — Published extension to VS Code Marketplace
+
+**What:**
+- Created VS Code Marketplace publisher account `rajwindermarwaha` at https://marketplace.visualstudio.com/manage
+- Added `LICENSE` file to `vscode-extension/scrub-ai/`
+- Optimized `icon.png` from 705 KB → 24 KB (resized to 128×128 via Pillow)
+- Ran `vsce package` → `scrub-ai-1.0.0.vsix` (33.34 KB, 9 files)
+- Uploaded `.vsix` via Marketplace web UI — passed automated verification
+- Merged `feature/v2.0-vscode-extension` → `main`
+- Updated `README.md` roadmap: marked v2.0 `[x]` complete
+
+**Live at:** https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai
+
+**Why upload via web UI instead of `vsce publish`:** `vsce publish` requires a PAT from Azure DevOps. The Azure AD tenant linked to the original Microsoft account was blocked due to inactivity. A new Microsoft account (Gmail-linked) was created, which only had access to the Marketplace web UI — sufficient for the initial upload. Future updates can use `vsce publish` once a PAT is generated from the new account's Azure DevOps org.
