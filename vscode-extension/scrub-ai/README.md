@@ -1,71 +1,38 @@
-# scrub-ai README
+# scrub-ai — VS Code Extension
 
-This is the README for your extension "scrub-ai". After writing up a brief description, we recommend including the following sections.
+> Shield your prompts. Sanitize sensitive content before sharing with AI assistants.
 
-## Features
+## What it does
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Detects and masks sensitive content directly in your editor before you copy it into any AI tool.
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- Secrets — API keys, tokens, passwords, private keys
+- Cloud — AWS account IDs, ARNs, GCP project IDs, Azure subscriptions
+- Network — IP addresses, internal hostnames, internal URLs
+- PII *(optional)* — emails, phone numbers, person names
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Python must be installed and on your PATH. The extension will offer to install the `scrub-ai` Python package automatically on first use.
 
-## Extension Settings
+To install manually:
+```bash
+pip install scrub-ai
+```
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Usage
 
-For example:
+| Action | How |
+|---|---|
+| Sanitize selection or full file | `Ctrl+Alt+S` |
+| Sanitize selection or full file | Command Palette → `Scrub AI: Sanitize Selection` |
+| Sanitize entire file | Command Palette → `Scrub AI: Sanitize File` |
 
-This extension contributes the following settings:
+When sensitive content is found, you will be prompted to:
+- **Show Diff** — view exactly what will change before applying
+- **Apply** — apply immediately
+- **Cancel** — do nothing
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## Platform support
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Works on Windows, Linux, and macOS — anywhere Python is available.

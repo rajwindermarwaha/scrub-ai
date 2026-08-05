@@ -1,30 +1,65 @@
 import * as vscode from 'vscode';
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 
-function runScrubAi(input: string): Promise<string> {
+function findCli(): { cmd: string; args: string[] } | null {
+    if (spawnSync('python', ['-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
+        return { cmd: 'python', args: ['-m', 'scrub_ai.cli'] };
+    }
+    if (spawnSync('python3', ['-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
+        return { cmd: 'python3', args: ['-m', 'scrub_ai.cli'] };
+    }
+    if (spawnSync('wsl', ['python3', '-m', 'scrub_ai.cli', '--help'], { shell: true }).status === 0) {
+        return { cmd: 'wsl', args: ['python3', '-m', 'scrub_ai.cli'] };
+    }
+    return null;
+}
+
+async function ensureCli(): Promise<{ cmd: string; args: string[] }> {
+    const found = findCli();
+    if (found) { return found; }
+
+    const choice = await vscode.window.showInformationMessage(
+        'scrub-ai CLI not found. Install it now?',
+        'Install', 'Cancel'
+    );
+    if (choice !== 'Install') {
+        throw new Error('scrub-ai not installed.');
+    }
+
+    await vscode.window.withProgress(
+        { location: vscode.ProgressLocation.Notification, title: 'Installing scrub-ai...', cancellable: false },
+        () => new Promise<void>((resolve, reject) => {
+            const proc = spawn('pip', ['install', 'scrub-ai'], { shell: true });
+            proc.on('close', code => code === 0 ? resolve() : reject(new Error('pip install failed')));
+        })
+    );
+
+    const after = findCli();
+    if (!after) { throw new Error('scrub-ai installed but not found on PATH. Please restart VS Code.'); }
+    return after;
+}
+
+function runScrubAi(input: string, cli: { cmd: string; args: string[] }): Promise<string> {
     return new Promise((resolve, reject) => {
-        const proc = spawn('wsl', ['/home/ubuntu/scrub-ai/.venv/bin/scrub-ai'], { shell: true });
+        const proc = spawn(cli.cmd, cli.args, { shell: true });
         let stdout = '';
         let stderr = '';
         proc.stdout.on('data', (d: Buffer) => stdout += d.toString());
         proc.stderr.on('data', (d: Buffer) => stderr += d.toString());
-        proc.on('error', (err) => {
-            console.error('scrub-ai spawn error:', err.message);
-            reject(err);
-        });
-        proc.on('close', code => {
-            code === 0 || stdout ? resolve(stdout) : reject(new Error(stderr));
-        });
+        proc.on('error', reject);
+        proc.on('close', code => code === 0 || stdout ? resolve(stdout) : reject(new Error(stderr)));
         proc.stdin.end(input);
     });
 }
 
 async function sanitizeText(original: string): Promise<void> {
+    let cli: { cmd: string; args: string[] };
     let sanitized: string;
     try {
-        sanitized = await runScrubAi(original);
+        cli = await ensureCli();
+        sanitized = await runScrubAi(original, cli);
     } catch (err: any) {
-        vscode.window.showErrorMessage(`scrub-ai error: ${err.message}`);
+        vscode.window.showErrorMessage(`scrub-ai: ${err.message}`);
         return;
     }
 
@@ -40,7 +75,6 @@ async function sanitizeText(original: string): Promise<void> {
     );
 
     if (choice === 'Show Diff') {
-        // Write to temp docs for diff view
         const originalDoc = await vscode.workspace.openTextDocument({ content: original, language: 'plaintext' });
         const sanitizedDoc = await vscode.workspace.openTextDocument({ content: sanitized, language: 'plaintext' });
         await vscode.commands.executeCommand('vscode.diff', originalDoc.uri, sanitizedDoc.uri, 'scrub-ai: Before ↔ After');
@@ -51,7 +85,6 @@ async function sanitizeText(original: string): Promise<void> {
         return;
     }
 
-    // Apply to editor
     const editor = vscode.window.activeTextEditor;
     if (!editor) { return; }
 
@@ -72,8 +105,6 @@ async function sanitizeText(original: string): Promise<void> {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    vscode.window.showInformationMessage('scrub-ai extension activated!');
-
     context.subscriptions.push(
         vscode.commands.registerCommand('scrub-ai.sanitize', async () => {
             const editor = vscode.window.activeTextEditor;
