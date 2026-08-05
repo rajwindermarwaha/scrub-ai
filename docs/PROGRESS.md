@@ -16,12 +16,33 @@ export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh" && nvm use 20
 ```
 
 ### Next step
-VS Code extension is feature-complete and publish-ready. Next step is **publishing to the VS Code Marketplace**:
-1. Create a publisher account at https://marketplace.visualstudio.com/manage
-2. Generate a Personal Access Token (PAT) in Azure DevOps
-3. Install `vsce`: `npm install -g @vscode/vsce`
-4. Run `vsce package` inside `vscode-extension/scrub-ai/` — verify the `.vsix` installs cleanly
-5. Run `vsce publish` to push to the Marketplace
+**v2.0 is shipped.** Next milestone is **v2.1 — Browser extension** (warns before pasting into ChatGPT/Claude/Copilot).
+
+Roadmap:
+- [ ] Scaffold Chrome extension (Manifest V3)
+- [ ] Content script: intercept paste events on known AI domains
+- [ ] Call scrub-ai CLI or replicate core regex patterns in JS
+- [ ] Show warning banner before paste if sensitive content detected
+
+---
+
+### Session 18 — 2026-08-05
+
+**What we did:**
+- Created Microsoft account (Gmail-linked) to bypass blocked Azure AD tenant
+- Created VS Code Marketplace publisher `rajwindermarwaha` at https://marketplace.visualstudio.com/manage
+- Packaged extension: `vsce package` → `scrub-ai-1.0.0.vsix` (33.34 KB)
+  - Added `LICENSE` file to extension folder
+  - Optimized `icon.png` from 705 KB → 24 KB using Pillow resize to 128×128
+- Uploaded `.vsix` to Marketplace via web UI — passed automated verification
+- Extension live at: https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai
+- Committed LICENSE file and icon optimization to `feature/v2.0-vscode-extension`
+- Merged `feature/v2.0-vscode-extension` → `main`
+- Updated `README.md` roadmap: marked v2.0 as `[x]` complete
+
+**Result:** v2.0 shipped — scrub-ai VS Code extension live on the Marketplace.
+
+**Status:** 🟢 v2.0 published. Ready to start v2.1 browser extension.
 
 ---
 
@@ -317,3 +338,6 @@ VS Code extension is feature-complete and publish-ready. Next step is **publishi
 | 41 | Fix cross-platform CLI detection + status bar indicator | Session 17 | ✅ Done |
 | 42 | Bump extension to v1.0.0 + add Marketplace metadata | Session 17 | ✅ Done |
 | 43 | Update extension README for Marketplace | Session 17 | ✅ Done |
+| 44 | Add LICENSE + optimize icon + package `.vsix` | Session 18 | ✅ Done |
+| 45 | Publish extension to VS Code Marketplace | Session 18 | ✅ Done |
+| 46 | Merge `feature/v2.0-vscode-extension` → `main` | Session 18 | ✅ Done |
