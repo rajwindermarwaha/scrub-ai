@@ -16,13 +16,26 @@ export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh" && nvm use 20
 ```
 
 ### Next step
-**v2.0 is shipped.** Next milestone is **v2.1 — Browser extension** (warns before pasting into ChatGPT/Claude/Copilot).
+**v2.0 is shipped** — VS Code extension live on Marketplace + CLI v2.0.0 published to PyPI. Next milestone is **v2.1 — Browser extension** (warns before pasting into ChatGPT/Claude/Copilot).
 
 Roadmap:
 - [ ] Scaffold Chrome extension (Manifest V3)
 - [ ] Content script: intercept paste events on known AI domains
 - [ ] Call scrub-ai CLI or replicate core regex patterns in JS
 - [ ] Show warning banner before paste if sensitive content detected
+
+---
+
+### Session 19 — 2026-08-05
+
+**What we did:**
+- Bumped `pyproject.toml` version from `1.2.0` → `2.0.0` to align with the v2.0 VS Code extension milestone
+- Updated `README.md`: added VS Code Marketplace badge, added full "VS Code Extension" section, marked v2.0 as `[x]` in roadmap
+- Triggered `publish.yml` workflow — built and published `scrub-ai 2.0.0` to PyPI via CI/CD
+
+**Result:** CLI v2.0.0 live at https://pypi.org/project/scrub-ai/2.0.0/
+
+**Status:** 🟢 v2.0 fully shipped (CLI + VS Code extension). Ready to start v2.1 browser extension.
 
 ---
 
@@ -341,3 +354,6 @@ Roadmap:
 | 44 | Add LICENSE + optimize icon + package `.vsix` | Session 18 | ✅ Done |
 | 45 | Publish extension to VS Code Marketplace | Session 18 | ✅ Done |
 | 46 | Merge `feature/v2.0-vscode-extension` → `main` | Session 18 | ✅ Done |
+| 47 | Bump version to `2.0.0` in `pyproject.toml` | Session 19 | ✅ Done |
+| 48 | Update README: Marketplace badge + VS Code Extension section | Session 19 | ✅ Done |
+| 49 | Publish CLI v2.0.0 to PyPI via CI/CD | Session 19 | ✅ Done |

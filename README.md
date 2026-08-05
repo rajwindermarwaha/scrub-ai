@@ -7,6 +7,7 @@
 > Shield your prompts. Sanitize sensitive content before sharing with AI assistants.
 
 [![PyPI version](https://badge.fury.io/py/scrub-ai.svg)](https://badge.fury.io/py/scrub-ai)
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/rajwindermarwaha.scrub-ai?label=VS%20Code%20Extension&color=007ACC&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue.svg)]()
@@ -46,6 +47,42 @@ Once that data leaves your machine, you have no control over it.
 - 🖥️ **System tray** — runs quietly in the background (Windows)
 - 📋 **CLI** — pipe any text through it from the terminal
 - 📦 **PyPI** — install with a single `pip install scrub-ai`
+- 🧩 **VS Code extension** — sanitize text directly inside your editor
+
+---
+
+## VS Code Extension
+
+> **[Install from the VS Code Marketplace →](https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai)**
+
+The extension brings scrub-ai directly into VS Code — no terminal needed.
+
+### What it does
+
+- **Sanitize Selection** — select any text in the editor, run the command, and sensitive content is masked in place
+- **Sanitize Clipboard** — sanitize whatever is on your clipboard before pasting it into a prompt or file
+- **Status bar indicator** — shows scrub-ai is active at the bottom of the editor
+- **Inline diagnostics** — highlights detected sensitive values as warnings so you can see them before sharing
+- **Quick fix** — click a highlighted value and apply a one-click fix to mask it
+
+### Install
+
+1. Install the CLI first (the extension shells out to it):
+   ```bash
+   pip install scrub-ai
+   ```
+2. Install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai), or search **scrub-ai** in the Extensions panel inside VS Code.
+
+### Usage
+
+Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run:
+
+| Command | What it does |
+|---|---|
+| `scrub-ai: Sanitize Selection` | Masks sensitive content in the selected text |
+| `scrub-ai: Sanitize Clipboard` | Masks sensitive content in your clipboard |
+
+Or right-click any selection → **Sanitize with scrub-ai**.
 
 ---
 
@@ -304,7 +341,7 @@ Detected 5 sensitive value(s): aws_access_key=1, aws_account_id=1, internal_host
 - [x] **v1.0** — CLI + secrets + cloud + network detection + Windows hotkey + system tray
 - [x] **v1.1** — PII detection (Presidio) + confidence scoring + profiles + custom patterns
 - [x] **v1.2** — Watch mode (automatic clipboard monitoring, all platforms)
-- [ ] **v2.0** — VS Code extension
+- [x] **v2.0** — VS Code extension ([Marketplace](https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai))
 - [ ] **v2.1** — Browser extension (warns before pasting into ChatGPT)
 - [ ] **v3.0** — Team policies + audit log
 
