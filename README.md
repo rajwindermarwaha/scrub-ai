@@ -20,11 +20,11 @@
 Every day, developers copy sensitive content into AI assistants without thinking:
 
 ```
-❌ Stack trace with internal hostnames    → pasted into ChatGPT
-❌ Application logs with session tokens   → pasted into Copilot
-❌ Config files with database passwords   → pasted into Claude
-❌ kubectl output with cluster names      → pasted into AI
-❌ AWS CLI output with account IDs        → pasted into ChatGPT
+❌ Stack trace with internal hostnames    → pasted into AI tools
+❌ Application logs with session tokens   → pasted into AI tools
+❌ Config files with database passwords   → pasted into AI tools
+❌ kubectl output with cluster names      → pasted into AI tools
+❌ AWS CLI output with account IDs        → pasted into AI tools
 ```
 
 Once that data leaves your machine, you have no control over it.
@@ -342,7 +342,7 @@ Detected 5 sensitive value(s): aws_access_key=1, aws_account_id=1, internal_host
 - [x] **v1.1** — PII detection (Presidio) + confidence scoring + profiles + custom patterns
 - [x] **v1.2** — Watch mode (automatic clipboard monitoring, all platforms)
 - [x] **v2.0** — VS Code extension ([Marketplace](https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai))
-- [ ] **v2.1** — Browser extension (warns before pasting into ChatGPT)
+- [x] **v2.1** — Browser extension (sanitizes before pasting into AI tools)
 - [ ] **v3.0** — Team policies + audit log
 
 ---
