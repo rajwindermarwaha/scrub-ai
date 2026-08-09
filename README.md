@@ -86,6 +86,50 @@ Or right-click any selection → **Sanitize with scrub-ai**.
 
 ---
 
+## Browser Extension
+
+The scrub-ai browser extension sanitizes text **as you paste it** into AI tools — no CLI required, no manual steps.
+
+### What it does
+
+- **Automatic paste sanitization** — intercepts every paste event and masks sensitive content before it reaches the input box
+- **Zero friction** — works silently in the background; if nothing sensitive is found, the paste goes through unchanged
+- **14 detection patterns** — the same secrets, cloud credential, and network patterns from the CLI, ported to JavaScript
+- **Console summary** — opens DevTools to see exactly what was masked on each paste
+
+### Supported sites
+
+| Site | URL |
+|---|---|
+| ChatGPT | chatgpt.com, chat.openai.com |
+| Claude | claude.ai |
+| Microsoft Copilot | copilot.microsoft.com |
+| Google Gemini | gemini.google.com |
+| Bing Chat | bing.com/chat |
+
+### Install (Chrome)
+
+1. Download or clone this repo
+2. Open Chrome and go to `chrome://extensions`
+3. Enable **Developer mode** (top right toggle)
+4. Click **Load unpacked** and select the `browser-extension/` folder
+5. The scrub-ai icon appears in the toolbar — the extension is active
+
+> A Chrome Web Store listing is coming soon. Until then, load it as an unpacked extension.
+
+### How it works
+
+When you paste into a supported AI site, the extension:
+1. Intercepts the paste event before it reaches the page
+2. Runs the text through all 14 detection patterns in `detectors.js`
+3. If anything sensitive is found, replaces it with a placeholder (e.g. `[API_KEY]`, `[AWS_ARN]`, `[IP_ADDRESS]`)
+4. Injects the clean text at the cursor position
+5. Logs a summary to the browser console: `[scrub-ai] Masked N sensitive value(s): label1, label2`
+
+If nothing sensitive is detected, the paste goes through untouched — no interference.
+
+---
+
 ## Install
 
 ### What do you need?

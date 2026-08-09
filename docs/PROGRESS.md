@@ -10,18 +10,42 @@ When starting a new session with AI, share this file so it knows exactly where t
 ### What to do first
 ```bash
 cd ~/scrub-ai
-git checkout feature/v2.0-vscode-extension
+git checkout feature/v2.1-browser-extension
 source .venv/bin/activate
 export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh" && nvm use 20
 ```
 
 ### Next step
-**v2.1 is shipped.** Next milestone is **v3.0 — Team policies + audit log**.
+**Browser extension built and tested locally.** Next step is **Chrome Web Store publish**.
 
-Roadmap:
+Then milestone is **v3.0 — Team policies + audit log**.
+
+Chrome Web Store publish checklist:
+- [ ] Create a Chrome Web Store developer account
+- [ ] Zip `browser-extension/` (excluding `node_modules/`)
+- [ ] Upload to Chrome Web Store Developer Dashboard
+- [ ] Fill in store listing (name, description, screenshots, privacy policy)
+- [ ] Submit for review
+
+v3.0 roadmap (after publish):
 - [ ] Team-level policy config (shared patterns, blocked domains)
 - [ ] Audit log (what was masked, when, by whom)
 - [ ] Dashboard / report export
+
+---
+
+### Session 21 — 2026-08-09
+
+**What we did:**
+- Confirmed `feature/v2.1-browser-extension` branch is checked out and all browser extension files are intact
+- Created Python virtual environment (`.venv`)
+- Updated PROGRESS.md next-session commands (was pointing to old `feature/v2.0-vscode-extension` branch)
+- Added **Browser Extension** section to `README.md` — install instructions, what it does, supported sites
+- Confirmed DEVLOG.md already has Steps 48–50 covering browser extension scaffold, tests, and CI
+
+**Result:** Docs fully up to date. Ready to publish to Chrome Web Store.
+
+**Status:** 🟡 v2.1 built and tested. Pending Chrome Web Store publish.
 
 ---
 
