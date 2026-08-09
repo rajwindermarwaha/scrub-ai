@@ -785,3 +785,43 @@ Examples of hardening:
 **Live at:** https://pypi.org/project/scrub-ai/2.0.0/
 
 **Why 2.0.0:** The VS Code extension is a major new surface area — not a patch or minor CLI change. Aligning the PyPI version with the v2.0 milestone makes the changelog and roadmap consistent across both distribution channels.
+
+---
+
+## Step 48 — Scaffolded browser extension (Manifest V3)
+
+**What:** Created `browser-extension/` with:
+- `manifest.json` — Manifest V3, targets 6 AI domains (chatgpt.com, claude.ai, copilot.microsoft.com, gemini.google.com, bing.com/chat, chat.openai.com)
+- `detectors.js` — 14 regex patterns ported from Python CLI (secrets, AWS, GCP, Azure, network). Exposes `sanitize(text)` returning `{ clean, matches }`
+- `content.js` — intercepts paste events, sanitizes, re-injects clean text into textarea and contentEditable elements
+- `icons/` — icon16.png, icon48.png, icon128.png generated from `assets/icon.png` via Pillow
+- `.gitignore` — excludes `node_modules/`
+- `package.json` — Jest test runner
+
+**Why port patterns to JS instead of calling CLI:** The browser extension runs in a sandboxed content script context — it cannot shell out to a subprocess. All detection logic must run in JavaScript. The patterns are a direct port of the Python regexes, keeping behaviour consistent across CLI, VS Code extension, and browser extension.
+
+**Why intercept paste instead of clipboard API:** The Clipboard API requires an async permission prompt. Intercepting the `paste` DOM event is synchronous, works without extra permissions, and fires at exactly the right moment — before the text reaches the input.
+
+---
+
+## Step 49 — Jest tests for browser extension (23 passing)
+
+**What:** Two test files:
+- `tests/detectors.test.js` — 14 tests covering all pattern categories (secrets, AWS, GCP, network, overlap resolution)
+- `tests/content.test.js` — 9 tests covering textarea paste, contentEditable paste, cursor positioning, input event firing, clean text passthrough, empty paste, multiple matches
+
+**Test environment:** `jest-environment-jsdom` simulates the DOM. Key fix: `isContentEditable` is not implemented in jsdom — check `contentEditable === "true"` directly instead.
+
+**Result:** 23 passed
+
+---
+
+## Step 50 — Added `test-browser` job to CI
+
+**What:** Added a second job `test-browser` to `.github/workflows/ci.yml`:
+- Runs on `ubuntu-latest` with Node 20
+- `npm install` in `browser-extension/`
+- `npx jest --no-coverage`
+- Runs in parallel with the Python matrix job
+
+**Why:** Browser extension tests must pass on every push, same as Python tests. Parallel jobs keep CI fast.

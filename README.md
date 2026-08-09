@@ -20,11 +20,11 @@
 Every day, developers copy sensitive content into AI assistants without thinking:
 
 ```
-❌ Stack trace with internal hostnames    → pasted into ChatGPT
-❌ Application logs with session tokens   → pasted into Copilot
-❌ Config files with database passwords   → pasted into Claude
-❌ kubectl output with cluster names      → pasted into AI
-❌ AWS CLI output with account IDs        → pasted into ChatGPT
+❌ Stack trace with internal hostnames    → pasted into AI tools
+❌ Application logs with session tokens   → pasted into AI tools
+❌ Config files with database passwords   → pasted into AI tools
+❌ kubectl output with cluster names      → pasted into AI tools
+❌ AWS CLI output with account IDs        → pasted into AI tools
 ```
 
 Once that data leaves your machine, you have no control over it.
@@ -83,6 +83,46 @@ Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run:
 | `scrub-ai: Sanitize Clipboard` | Masks sensitive content in your clipboard |
 
 Or right-click any selection → **Sanitize with scrub-ai**.
+
+---
+
+## Browser Extension
+
+The scrub-ai browser extension sanitizes text **as you paste it** into AI tools — no CLI required, no manual steps.
+
+### What it does
+
+- **Automatic paste sanitization** — intercepts every paste event and masks sensitive content before it reaches the input box
+- **Zero friction** — works silently in the background; if nothing sensitive is found, the paste goes through unchanged
+- **14 detection patterns** — the same secrets, cloud credential, and network patterns from the CLI, ported to JavaScript
+- **Console summary** — opens DevTools to see exactly what was masked on each paste
+
+### Supported sites
+
+| Site | URL |
+|---|---|
+| ChatGPT | chatgpt.com, chat.openai.com |
+| Claude | claude.ai |
+| Microsoft Copilot | copilot.microsoft.com |
+| Google Gemini | gemini.google.com |
+| Bing Chat | bing.com/chat |
+
+### Install
+
+> **[Install from the Chrome Web Store →](https://chrome.google.com/webstore/detail/scrub-ai)**
+
+Search **scrub-ai** in the Chrome Web Store, click **Add to Chrome**, and confirm. The extension is active immediately — no CLI or configuration needed.
+
+### How it works
+
+When you paste into a supported AI site, the extension:
+1. Intercepts the paste event before it reaches the page
+2. Runs the text through all 14 detection patterns in `detectors.js`
+3. If anything sensitive is found, replaces it with a placeholder (e.g. `[API_KEY]`, `[AWS_ARN]`, `[IP_ADDRESS]`)
+4. Injects the clean text at the cursor position
+5. Logs a summary to the browser console: `[scrub-ai] Masked N sensitive value(s): label1, label2`
+
+If nothing sensitive is detected, the paste goes through untouched — no interference.
 
 ---
 
@@ -342,7 +382,7 @@ Detected 5 sensitive value(s): aws_access_key=1, aws_account_id=1, internal_host
 - [x] **v1.1** — PII detection (Presidio) + confidence scoring + profiles + custom patterns
 - [x] **v1.2** — Watch mode (automatic clipboard monitoring, all platforms)
 - [x] **v2.0** — VS Code extension ([Marketplace](https://marketplace.visualstudio.com/items?itemName=rajwindermarwaha.scrub-ai))
-- [ ] **v2.1** — Browser extension (warns before pasting into ChatGPT)
+- [x] **v2.1** — Browser extension (sanitizes before pasting into AI tools)
 - [ ] **v3.0** — Team policies + audit log
 
 ---

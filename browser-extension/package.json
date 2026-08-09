@@ -1,0 +1,16 @@
+{
+  "name": "scrub-ai-browser-extension",
+  "version": "2.1.0",
+  "description": "Tests for scrub-ai browser extension",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  }
+}

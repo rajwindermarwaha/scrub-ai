@@ -10,19 +10,62 @@ When starting a new session with AI, share this file so it knows exactly where t
 ### What to do first
 ```bash
 cd ~/scrub-ai
-git checkout feature/v2.0-vscode-extension
+git checkout feature/v2.1-browser-extension
 source .venv/bin/activate
 export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh" && nvm use 20
 ```
 
 ### Next step
-**v2.0 is shipped** — VS Code extension live on Marketplace + CLI v2.0.0 published to PyPI. Next milestone is **v2.1 — Browser extension** (warns before pasting into ChatGPT/Claude/Copilot).
+**Browser extension built and tested locally.** Next step is **Chrome Web Store publish**.
 
-Roadmap:
-- [ ] Scaffold Chrome extension (Manifest V3)
-- [ ] Content script: intercept paste events on known AI domains
-- [ ] Call scrub-ai CLI or replicate core regex patterns in JS
-- [ ] Show warning banner before paste if sensitive content detected
+Then milestone is **v3.0 — Team policies + audit log**.
+
+Chrome Web Store publish checklist:
+- [ ] Create a Chrome Web Store developer account
+- [ ] Zip `browser-extension/` (excluding `node_modules/`)
+- [ ] Upload to Chrome Web Store Developer Dashboard
+- [ ] Fill in store listing (name, description, screenshots, privacy policy)
+- [ ] Submit for review
+
+v3.0 roadmap (after publish):
+- [ ] Team-level policy config (shared patterns, blocked domains)
+- [ ] Audit log (what was masked, when, by whom)
+- [ ] Dashboard / report export
+
+---
+
+### Session 21 — 2026-08-09
+
+**What we did:**
+- Confirmed `feature/v2.1-browser-extension` branch is checked out and all browser extension files are intact
+- Created Python virtual environment (`.venv`)
+- Updated PROGRESS.md next-session commands (was pointing to old `feature/v2.0-vscode-extension` branch)
+- Added **Browser Extension** section to `README.md` — install instructions, what it does, supported sites
+- Confirmed DEVLOG.md already has Steps 48–50 covering browser extension scaffold, tests, and CI
+
+**Result:** Docs fully up to date. Ready to publish to Chrome Web Store.
+
+**Status:** 🟡 v2.1 built and tested. Pending Chrome Web Store publish.
+
+---
+
+### Session 20 — 2026-08-09
+
+**What we did:**
+- Created `feature/v2.1-browser-extension` branch
+- Scaffolded `browser-extension/` with Manifest V3 structure
+- Ported core regex patterns from Python CLI to `detectors.js` (14 patterns: secrets, AWS, GCP, Azure, network)
+- Implemented `content.js` — intercepts paste events, sanitizes, re-injects clean text into textarea/contentEditable
+- Wrote Jest tests: `tests/detectors.test.js` (14 tests) + `tests/content.test.js` (9 tests) — 23 passing
+- Generated browser icons (16x16, 48x48, 128x128) from existing `assets/icon.png`
+- Added `browser-extension/.gitignore`
+- Added `test-browser` job to `ci.yml` — runs Jest on every push
+- Manually tested in Chrome — paste sanitization confirmed working on AI sites
+- Updated README roadmap: marked v2.1 as `[x]` complete
+
+**Result:** Browser extension working locally. Ready to publish to Chrome Web Store.
+
+**Status:** 🟡 v2.1 built and tested. Pending Chrome Web Store publish.
 
 ---
 
@@ -357,3 +400,9 @@ Roadmap:
 | 47 | Bump version to `2.0.0` in `pyproject.toml` | Session 19 | ✅ Done |
 | 48 | Update README: Marketplace badge + VS Code Extension section | Session 19 | ✅ Done |
 | 49 | Publish CLI v2.0.0 to PyPI via CI/CD | Session 19 | ✅ Done |
+| 50 | Create `feature/v2.1-browser-extension` branch | Session 20 | ✅ Done |
+| 51 | Scaffold `browser-extension/` — Manifest V3, detectors.js, content.js | Session 20 | ✅ Done |
+| 52 | Write Jest tests — detectors + content script (23 passing) | Session 20 | ✅ Done |
+| 53 | Generate browser icons (16, 48, 128px) | Session 20 | ✅ Done |
+| 54 | Add `test-browser` job to CI | Session 20 | ✅ Done |
+| 55 | Manual Chrome load test — confirmed working | Session 20 | ✅ Done |
