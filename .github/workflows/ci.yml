@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
+  test-python:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
 
@@ -32,3 +32,24 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+
+  test-browser:
+    name: Test (Browser Extension)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: browser-extension
+
+      - name: Run tests
+        run: npx jest --no-coverage
+        working-directory: browser-extension
