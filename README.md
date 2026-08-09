@@ -107,15 +107,11 @@ The scrub-ai browser extension sanitizes text **as you paste it** into AI tools 
 | Google Gemini | gemini.google.com |
 | Bing Chat | bing.com/chat |
 
-### Install (Chrome)
+### Install
 
-1. Download or clone this repo
-2. Open Chrome and go to `chrome://extensions`
-3. Enable **Developer mode** (top right toggle)
-4. Click **Load unpacked** and select the `browser-extension/` folder
-5. The scrub-ai icon appears in the toolbar — the extension is active
+> **[Install from the Chrome Web Store →](https://chrome.google.com/webstore/detail/scrub-ai)**
 
-> A Chrome Web Store listing is coming soon. Until then, load it as an unpacked extension.
+Search **scrub-ai** in the Chrome Web Store, click **Add to Chrome**, and confirm. The extension is active immediately — no CLI or configuration needed.
 
 ### How it works
 
